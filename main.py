@@ -45,9 +45,16 @@ class Application(tk.Frame):
             print(f"Added player {player_name}")
 
     def show_player_list(self):
+        # Sort players based on their points in descending order
+        sorted_players = sorted(self.players, key=lambda player: player['points'], reverse=True)
+
+        # Construct the player list string with the sorted players
+        player_list = "\n".join(
+            [f"{i + 1}. {player['name']} ({player['points']} points)" for i, player in enumerate(sorted_players)])
+
         # Open a dialog box to show player list
-        player_list = "\n".join([f"{i+1}. {player['name']} ({player['points']} points)" for i, player in enumerate(self.players)])
-        tk.messagebox.showinfo("Player List", player_list)
+        tk.messagebox.showinfo("Player Ranking", player_list)
+
 
     def generate_pairings(self):
         # Shuffle player list
