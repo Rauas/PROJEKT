@@ -193,20 +193,28 @@ class Application(tk.Frame):
         # Show all pairs and create radio buttons to select the winner for each pair
         for i, pairing in enumerate(self.pairings):
             # Create a label for the pair
-            pair_label = tk.Label(left_frame, text=f"{pairing[0]['name']} vs {pairing[1]['name']}")
+            if pairing[1] is None:
+                pair_label = tk.Label(left_frame, text=f"{pairing[0]['name']} has bye")
+            else:
+                pair_label = tk.Label(left_frame, text=f"{pairing[0]['name']} vs {pairing[1]['name']}")
             pair_label.pack()
 
             # Create radio buttons for each player
             player1_button = tk.Radiobutton(left_frame, text=pairing[0]['name'], variable=winners[i],
                                             value=pairing[0]['name'])
             player1_button.pack(anchor='w')
-            player2_button = tk.Radiobutton(left_frame, text=pairing[1]['name'], variable=winners[i],
-                                            value=pairing[1]['name'])
-            player2_button.pack(anchor='w')
+            if pairing[1] is not None:
+                player2_button = tk.Radiobutton(left_frame, text=pairing[1]['name'], variable=winners[i],
+                                                value=pairing[1]['name'])
+                player2_button.pack(anchor='w')
+            else:
+                # If one player has bye, disable the radio button
+                player1_button.config(state='disabled')
 
         # Create an "Accept" button to save the results and proceed to the next round
         accept_button = tk.Button(right_frame, text="Accept", command=lambda: self.accept_results(winners, game_window))
         accept_button.pack()
+        self.generate_pairings_button.config(state='normal')
 
     def accept_results(self, winners, game_window):
         # Check if all pairs have been played
