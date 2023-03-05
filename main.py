@@ -156,43 +156,73 @@ class Application(tk.Frame):
         self.round += 1
 
     def play_game(self):
-        # Loop through each pairing in self.pairings and prompt user for the winner
+        # Check if there are any pairings to play
+        if not self.pairings:
+            messagebox.showerror("Error", "No pairings to play")
+            return
+
+        # Create a new window for playing the game
+        game_window = tk.Toplevel(self)
+
+        # Left Frame for pairs and Radiobuttons
+        left_frame = tk.Frame(game_window)
+        left_frame.pack(side='left')
+
+        # Right Frame for Accept button
+        right_frame = tk.Frame(game_window)
+        right_frame.pack(side='right')
+
+        # Create variables to store winner choices
+        winners = [tk.StringVar() for _ in range(len(self.pairings))]
+
+        # Show all pairs and create radio buttons to select the winner for each pair
+        for i, pairing in enumerate(self.pairings):
+            # Create a label for the pair
+            pair_label = tk.Label(left_frame, text=f"{pairing[0]['name']} vs {pairing[1]['name']}")
+            pair_label.pack()
+
+            # Create radio buttons for each player
+            player1_button = tk.Radiobutton(left_frame, text=pairing[0]['name'], variable=winners[i],
+                                            value=pairing[0]['name'])
+            player1_button.pack(anchor='w')
+            player2_button = tk.Radiobutton(left_frame, text=pairing[1]['name'], variable=winners[i],
+                                            value=pairing[1]['name'])
+            player2_button.pack(anchor='w')
+
+        # Create an "Accept" button to save the results and proceed to the next round
+        accept_button = tk.Button(right_frame, text="Accept", command=lambda: self.accept_results(winners, game_window))
+        accept_button.pack()
+
+    def accept_results(self, winners, game_window):
+        # Check if all pairs have been played
+        if len(winners) != len(self.pairings):
+            messagebox.showerror("Error", "Not all pairs have been played")
+            return
+
+        # Update the points for the winners and add the results to the round results
+        for i, pairing in enumerate(self.pairings):
+            winner_name = winners[i].get()
+            for player in self.players:
+                if player['name'] == winner_name:
+                    player['points'] += 1
+                    self.round_results.append({'pairing': pairing, 'winner': player})
+                    break
+
+        # Clear the pairings for the next round
+        self.pairings = []
+
+        # Show the round results
+        round_results_str = "\n".join(
+            [f"{result['pairing'][0]['name']} vs {result['pairing'][1]['name']}: {result['winner']['name']} wins" for
+             result in self.round_results])
+        messagebox.showinfo(f"Round {self.round} Results", round_results_str)
+
+        # Increment the round number and reset the round results
+        self.round += 1
         self.round_results = []
-        for pairing in self.pairings:
-            player1 = pairing[0]
-            player2 = pairing[1]
 
-            if player2 is None:
-                # Player 1 gets a bye
-                winner = player1
-                loser = None
-            else:
-                # Prompt user for winner
-                winner_name = tk.simpledialog.askstring("Game Result",
-                                                        f"Who won the game? {player1['name']} vs {player2['name']}")
-                if winner_name:
-                    if winner_name == player1['name']:
-                        winner = player1
-                        loser = player2
-                    elif winner_name == player2['name']:
-                        winner = player2
-                        loser = player1
-                    else:
-                        messagebox.showerror("Error", "Invalid winner name")
-                        return
-
-            # Update points and show game result
-            if loser is not None:
-                winner['points'] += 1
-                messagebox.showinfo("Game Result", f"{winner['name']} won the game!")
-                self.round_results.append((winner['name'], loser['name'], 1))
-            else:
-                messagebox.showinfo("Game Result", f"{winner['name']} gets a bye!")
-
-        # If all players have played, generate next round
-        if len(self.round_results) == len(self.players) / 2:
-            self.generate_pairings()
-        self.generate_pairings_button.config(state='normal')
+        # Close the game window
+        game_window.destroy()
 
     def generate_next_round(self):
         # Reset round results
@@ -263,8 +293,6 @@ class Application(tk.Frame):
             var = tk.BooleanVar()
             checkboxes.append(var)
             tk.Checkbutton(window, text=player, variable=var).grid(row=i+1, column=0, sticky="w")
-
-
 
 
 root = tk.Tk()
