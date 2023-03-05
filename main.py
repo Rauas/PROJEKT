@@ -16,6 +16,9 @@ class Application(tk.Frame):
         self.round_results = []
         self.pack()
         self.create_widgets()
+        self.master.geometry('800x160')
+        self.master.title('tournament')
+
 
         self.master.geometry('1200x700')
         self.master.configure(background='black')
@@ -42,8 +45,8 @@ class Application(tk.Frame):
         self.generate_pairings_button = tk.Button(self, text="Generate Pairings", command=self.generate_pairings, width=40)
         self.generate_pairings_button.grid(row=3, column=0, padx=20, pady=20)
 
-        # Play game button
-        self.play_game_button = tk.Button(self, text="Play Game", command=self.play_game, width=40)
+        # Play game button        
+        self.play_game_button = tk.Button(self, text="Who won?", command=self.play_game, width=40)
         self.play_game_button.grid(row=4, column=0, padx=20, pady=20)
 
         # Quit button
@@ -236,6 +239,24 @@ class Application(tk.Frame):
         # Close the game window
         game_window.destroy()
 
+    def add_players_from_file(self):
+        # Read players from file
+        try:
+            with open("players.csv", "r") as f:
+                existing_players = [line.strip() for line in f.readlines()]
+        except FileNotFoundError:
+            existing_players = []
+
+        # Create pop-up window with checkboxes for each player
+        window = tk.Toplevel(self)
+        window.title("Add Players")
+        tk.Label(window, text="Select players to add:").grid(row=0, column=0, sticky="w")
+        checkboxes = []
+        for i, player in enumerate(existing_players):
+            var = tk.BooleanVar()
+            checkboxes.append(var)
+            tk.Checkbutton(window, text=player, variable=var).grid(row=i+1, column=0, sticky="w")
+
     def generate_next_round(self):
         # Reset round results
         self.round_results = []
@@ -287,24 +308,6 @@ class Application(tk.Frame):
 
         # Increment round
         self.round += 1
-
-    def add_players_from_file(self):
-        # Read players from file
-        try:
-            with open("players.csv", "r") as f:
-                existing_players = [line.strip() for line in f.readlines()]
-        except FileNotFoundError:
-            existing_players = []
-
-        # Create pop-up window with checkboxes for each player
-        window = tk.Toplevel(self)
-        window.title("Add Players")
-        tk.Label(window, text="Select players to add:").grid(row=0, column=0, sticky="w")
-        checkboxes = []
-        for i, player in enumerate(existing_players):
-            var = tk.BooleanVar()
-            checkboxes.append(var)
-            tk.Checkbutton(window, text=player, variable=var).grid(row=i+1, column=0, sticky="w")
 
 
 root = tk.Tk()
