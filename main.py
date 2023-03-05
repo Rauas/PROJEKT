@@ -2,6 +2,7 @@ import tkinter as tk
 from random import shuffle, sample
 import tkinter.simpledialog as simpledialog
 import tkinter.messagebox as messagebox
+import csv
 
 
 class Application(tk.Frame):
@@ -21,9 +22,14 @@ class Application(tk.Frame):
         self.add_player_button = tk.Button(self, text="Add Player", command=self.add_player)
         self.add_player_button.pack(side="top")
 
+        # Add from list button
+        self.add_from_list = tk.Button(self, text="Add from list", command=self.add_from_list)
+        self.add_from_list.pack(side="top")
+
         # Show player list button
         self.show_players_button = tk.Button(self, text="Show Player List", command=self.show_player_list)
         self.show_players_button.pack(side="top")
+
 
         # Generate pairings button
         self.generate_pairings_button = tk.Button(self, text="Generate Pairings", command=self.generate_pairings)
@@ -37,12 +43,90 @@ class Application(tk.Frame):
         self.quit_button = tk.Button(self, text="Quit", fg="red", command=self.master.destroy)
         self.quit_button.pack(side="bottom")
 
+
+
+    def add_from_list (self):
+        # Read player names from CSV file
+        with open('players.csv', mode='r') as file:
+            reader = csv.reader(file)
+            player_names = [row[0] for row in reader]
+
+        # Create pop-up window with checkboxes to choose players
+        top = tk.Toplevel(self)
+        top.title("Choose Player")
+        tk.Label(top, text="Select a player:").pack()
+        selected_player = tk.StringVar()
+        for player_name in player_names:
+            tk.Radiobutton(top, text=player_name, variable=selected_player, value=player_name).pack(anchor='w')
+
+            # Add player button
+        def add_selected_player():
+            player_name = selected_player.get()
+            if player_name:
+                # Add player to list
+                self.players.append({"name": player_name, "points": 0})
+                print(f"Added player {player_name}")
+
+
+
+    # def add_player(self):
+    #     # Load existing players from players.csv
+    #     existing_players = []
+    #     with open('players.csv', mode='r') as file:
+    #         reader = csv.reader(file)
+    #         for row in reader:
+    #             existing_players.append(row[0])
+    #
+    #     # Open a dialog box to get player name or choose from existing players
+    #     dialog = tk.Toplevel()
+    #     dialog.title("Add Player")
+    #
+    #     dialog_label = tk.Label(dialog, text="Enter player name or choose from existing players:")
+    #     dialog_label.grid(row=0, column=0, padx=10, pady=10)
+    #
+    #     player_name_var = tk.StringVar()
+    #     player_name_entry = tk.Entry(dialog, textvariable=player_name_var)
+    #     player_name_entry.grid(row=1, column=0, padx=10)
+    #
+    #     existing_players_var = tk.StringVar(value=existing_players)
+    #     existing_players_cb = tk.OptionMenu(dialog, player_name_var, *existing_players_var.get())
+    #     existing_players_cb.grid(row=2, column=0, padx=10, pady=10)
+    #
+    #     def add_player_callback():
+    #         player_name = player_name_var.get().strip()
+    #         if player_name:
+    #             # Add player to list and CSV file
+    #             self.players.append({"name": player_name, "points": 0})
+    #             with open('players.csv', mode='a', newline='') as file:
+    #                 writer = csv.writer(file)
+    #                 writer.writerow([player_name, 0])
+    #             print(f"Added player {player_name} to CSV file")
+    #
+    #         dialog.destroy()
+    #
+    #     add_button = tk.Button(dialog, text="Add", command=add_player_callback)
+    #     add_button.grid(row=3, column=0, padx=10, pady=10)
+
     def add_player(self):
         # Open a dialog box to get player name
         player_name = simpledialog.askstring("Add Player", "Enter player name:")
         if player_name:
+            # Check if player name is already in CSV file
+            with open('players.csv', mode='r') as file:
+                reader = csv.reader(file)
+                player_names = [row[0] for row in reader]
+                if player_name in player_names:
+                    messagebox.showerror("Error", "Player name already exists")
+                    return
+
+            # Add player to list and CSV file
             self.players.append({"name": player_name, "points": 0})
-            print(f"Added player {player_name}")
+            with open('players.csv', mode='a', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow([player_name, 0])
+            print(f"Added player {player_name} to CSV file")
+
+
 
     def show_player_list(self):
         # Sort players based on their points in descending order
@@ -167,6 +251,26 @@ class Application(tk.Frame):
 
         # Increment round
         self.round += 1
+
+    def add_players_from_file(self):
+        # Read players from file
+        try:
+            with open("players.csv", "r") as f:
+                existing_players = [line.strip() for line in f.readlines()]
+        except FileNotFoundError:
+            existing_players = []
+
+        # Create pop-up window with checkboxes for each player
+        window = tk.Toplevel(self)
+        window.title("Add Players")
+        tk.Label(window, text="Select players to add:").grid(row=0, column=0, sticky="w")
+        checkboxes = []
+        for i, player in enumerate(existing_players):
+            var = tk.BooleanVar()
+            checkboxes.append(var)
+            tk.Checkbutton(window, text=player, variable=var).grid(row=i+1, column=0, sticky="w")
+
+
 
 
 root = tk.Tk()
