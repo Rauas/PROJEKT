@@ -134,26 +134,31 @@ class Application(tk.Frame):
         tk.messagebox.showinfo("Player Ranking", player_list)
 
     def generate_pairings(self):
-        # Shuffle player list
-        shuffle(self.players)
+        if len(self.players) < 3:
+            tk.messagebox.showerror("Error", "At least 3 players are required to generate pairings.")
+        else:
+            # Shuffle player list
+            shuffle(self.players)
 
-        # Create pairings
-        self.pairings = []
-        num_players = len(self.players)
-        for i in range(0, num_players, 2):
-            if i+1 == num_players:
-                # Odd number of players, so the last player gets a bye
-                self.players[i]["points"] += 1
-                self.pairings.append((self.players[i], None))
-            else:
-                self.pairings.append((self.players[i], self.players[i+1]))
+            # Create pairings
+            self.pairings = []
+            num_players = len(self.players)
+            for i in range(0, num_players, 2):
+                if i + 1 == num_players:
+                    # Odd number of players, so the last player gets a bye
+                    self.players[i]["points"] += 1
+                    self.pairings.append((self.players[i], None))
+                else:
+                    self.pairings.append((self.players[i], self.players[i + 1]))
 
-        # Show pairings in a dialog box
-        pairings_list = "\n".join([f"{i+1}. {pairing[0]['name']} vs. {pairing[1]['name'] if pairing[1] else 'BYE'}" for i, pairing in enumerate(self.pairings)])
-        tk.messagebox.showinfo(f"Round {self.round} Pairings", pairings_list)
-        self.generate_pairings_button.config(state='disabled')
-        # Increment round
-        self.round += 1
+            # Show pairings in a dialog box
+            pairings_list = "\n".join(
+                [f"{i + 1}. {pairing[0]['name']} vs. {pairing[1]['name'] if pairing[1] else 'BYE'}" for i, pairing in
+                 enumerate(self.pairings)])
+            tk.messagebox.showinfo(f"Round {self.round} Pairings", pairings_list)
+            self.generate_pairings_button.config(state='disabled')
+            # Increment round
+            self.round += 1
 
     def play_game(self):
         # Check if there are any pairings to play
