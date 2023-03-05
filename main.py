@@ -26,29 +26,29 @@ class Application(tk.Frame):
         # Add player button
 
         self.add_player_button = tk.Button(self, text="Add Player", command=self.add_player, width=40, bg='black', fg='black')
-        self.add_player_button.grid(row=0, column=0, padx=10, pady=10) #pack(side="top")
+        self.add_player_button.grid(row=0, column=0, padx=20, pady=20) 
       #  self.add_player_button.place(relx=0.5, rely=0.25, anchor='center')
 
         # Add from list button
         self.add_from_list = tk.Button(self, text="Add from list", command=self.add_from_list, width=40)
-        self.add_from_list.grid(row=1, column=0, padx=10, pady=10) #.pack(side="top")
+        self.add_from_list.grid(row=1, column=0, padx=20, pady=20)
 
         # Show player list button
         self.show_players_button = tk.Button(self, text="Show Player List", command=self.show_player_list, width=40)
-        self.show_players_button.grid(row=2, column=0, padx=10, pady=10) #.pack(side="top")
+        self.show_players_button.grid(row=2, column=0, padx=20, pady=20)
 
 
         # Generate pairings button
         self.generate_pairings_button = tk.Button(self, text="Generate Pairings", command=self.generate_pairings, width=40)
-        self.generate_pairings_button.grid(row=3, column=0, padx=10, pady=10)  #pack(side="top")
+        self.generate_pairings_button.grid(row=3, column=0, padx=20, pady=20)
 
         # Play game button
         self.play_game_button = tk.Button(self, text="Play Game", command=self.play_game, width=40)
-        self.play_game_button.grid(row=4, column=0, padx=10, pady=10) #pack(side="top")
+        self.play_game_button.grid(row=4, column=0, padx=20, pady=20)
 
         # Quit button
         self.quit_button = tk.Button(self, text="Quit", fg="red", command=self.master.destroy, width=40)
-        self.quit_button.grid(row=5, column=0, padx=10, pady=10) #.pack(side="bottom")
+        self.quit_button.grid(row=5, column=0, padx=20, pady=20)
 
     def add_player(self):
         # Open a dialog box to get player name
