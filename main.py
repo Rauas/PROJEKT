@@ -43,70 +43,6 @@ class Application(tk.Frame):
         self.quit_button = tk.Button(self, text="Quit", fg="red", command=self.master.destroy)
         self.quit_button.pack(side="bottom")
 
-
-
-    def add_from_list (self):
-        # Read player names from CSV file
-        with open('players.csv', mode='r') as file:
-            reader = csv.reader(file)
-            player_names = [row[0] for row in reader]
-
-        # Create pop-up window with checkboxes to choose players
-        top = tk.Toplevel(self)
-        top.title("Choose Player")
-        tk.Label(top, text="Select a player:").pack()
-        selected_player = tk.StringVar()
-        for player_name in player_names:
-            tk.Radiobutton(top, text=player_name, variable=selected_player, value=player_name).pack(anchor='w')
-
-            # Add player button
-        def add_selected_player():
-            player_name = selected_player.get()
-            if player_name:
-                # Add player to list
-                self.players.append({"name": player_name, "points": 0})
-                print(f"Added player {player_name}")
-
-
-
-    # def add_player(self):
-    #     # Load existing players from players.csv
-    #     existing_players = []
-    #     with open('players.csv', mode='r') as file:
-    #         reader = csv.reader(file)
-    #         for row in reader:
-    #             existing_players.append(row[0])
-    #
-    #     # Open a dialog box to get player name or choose from existing players
-    #     dialog = tk.Toplevel()
-    #     dialog.title("Add Player")
-    #
-    #     dialog_label = tk.Label(dialog, text="Enter player name or choose from existing players:")
-    #     dialog_label.grid(row=0, column=0, padx=10, pady=10)
-    #
-    #     player_name_var = tk.StringVar()
-    #     player_name_entry = tk.Entry(dialog, textvariable=player_name_var)
-    #     player_name_entry.grid(row=1, column=0, padx=10)
-    #
-    #     existing_players_var = tk.StringVar(value=existing_players)
-    #     existing_players_cb = tk.OptionMenu(dialog, player_name_var, *existing_players_var.get())
-    #     existing_players_cb.grid(row=2, column=0, padx=10, pady=10)
-    #
-    #     def add_player_callback():
-    #         player_name = player_name_var.get().strip()
-    #         if player_name:
-    #             # Add player to list and CSV file
-    #             self.players.append({"name": player_name, "points": 0})
-    #             with open('players.csv', mode='a', newline='') as file:
-    #                 writer = csv.writer(file)
-    #                 writer.writerow([player_name, 0])
-    #             print(f"Added player {player_name} to CSV file")
-    #
-    #         dialog.destroy()
-    #
-    #     add_button = tk.Button(dialog, text="Add", command=add_player_callback)
-    #     add_button.grid(row=3, column=0, padx=10, pady=10)
-
     def add_player(self):
         # Open a dialog box to get player name
         player_name = simpledialog.askstring("Add Player", "Enter player name:")
@@ -126,7 +62,40 @@ class Application(tk.Frame):
                 writer.writerow([player_name, 0])
             print(f"Added player {player_name} to CSV file")
 
+    def add_from_list(self):
+        # Read player names from CSV file
+        with open('players.csv', mode='r') as file:
+            reader = csv.reader(file)
+            player_names = [row[0] for row in reader]
 
+        # Create pop-up window with checkboxes to choose players
+        top = tk.Toplevel(self)
+        top.title("Choose Player")
+        tk.Label(top, text="Select player(s):").pack()
+        selected_players = []
+        for player_name in player_names:
+            var = tk.IntVar()
+            chkbox = tk.Checkbutton(top, text=player_name, variable=var)
+            chkbox.player_name = player_name
+            chkbox.var = var
+            chkbox.pack(anchor='w')
+
+        # Add Accept button to pop-up window
+        accept_button = tk.Button(top, text="Accept", command=lambda: self.add_selected_players(selected_players, top))
+        accept_button.pack()
+
+    def add_selected_players(self, selected_players, top):
+        for chkbox in top.winfo_children():
+            if isinstance(chkbox, tk.Checkbutton) and chkbox.var.get() == 1:
+                player_name = chkbox.player_name
+                # Check if player is already in the list
+                if any(player["name"] == player_name for player in self.players):
+                    messagebox.showwarning("Warning", f"{player_name} is already in the list.")
+                else:
+                    selected_players.append(player_name)
+                    self.players.append({"name": player_name, "points": 0})
+                    print(f"Added player {player_name}")
+        top.destroy()
 
     def show_player_list(self):
         # Sort players based on their points in descending order
@@ -138,7 +107,6 @@ class Application(tk.Frame):
 
         # Open a dialog box to show player list
         tk.messagebox.showinfo("Player Ranking", player_list)
-
 
     def generate_pairings(self):
         # Shuffle player list
