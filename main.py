@@ -197,6 +197,7 @@ class Application(tk.Frame):
         # Create an "Accept" button to save the results and proceed to the next round
         accept_button = tk.Button(right_frame, text="Accept", command=lambda: self.accept_results(winners, game_window))
         accept_button.pack()
+        self.generate_pairings_button.config(state='normal')
 
     def accept_results(self, winners, game_window):
         # Check if all pairs have been played
