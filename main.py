@@ -50,6 +50,11 @@ class Application(tk.Frame):
             messagebox.showerror("Error", "You did not type a name.")
             return
 
+        # Check player name length
+        if len(player_name) < 3 or len(player_name) > 10:
+            messagebox.showerror("Error", "Invalid name type (3 - 10 characters)")
+            return
+
         # Check if player name is already in CSV file
         try:
             with open('players.csv', mode='r') as file:
@@ -75,6 +80,15 @@ class Application(tk.Frame):
 
     def add_from_list(self):
         # Read player names from CSV file
+
+        try:
+            with open('players.csv', mode='r') as file:
+                reader = csv.reader(file)
+                player_names = [row[0] for row in reader]
+        except FileNotFoundError:
+            messagebox.showinfo("Information", "Add first player to create list.")
+            return
+
         with open('players.csv', mode='r') as file:
             reader = csv.reader(file)
             player_names = [row[0] for row in reader]
