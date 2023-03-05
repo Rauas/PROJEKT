@@ -19,51 +19,76 @@ class Application(tk.Frame):
     def create_widgets(self):
         # Add player button
 
-        self.add_player_button = tk.Button(self, text="Add Player", command=self.add_player)
+        self.add_player_button = tk.Button(self, text="Add Player", command=self.add_player, width=40)
         self.add_player_button.pack(side="top")
 
         # Add from list button
-        self.add_from_list = tk.Button(self, text="Add from list", command=self.add_from_list)
+        self.add_from_list = tk.Button(self, text="Add from list", command=self.add_from_list, width=40)
         self.add_from_list.pack(side="top")
 
         # Show player list button
-        self.show_players_button = tk.Button(self, text="Show Player List", command=self.show_player_list)
+        self.show_players_button = tk.Button(self, text="Show Player List", command=self.show_player_list, width=40)
         self.show_players_button.pack(side="top")
 
 
         # Generate pairings button
-        self.generate_pairings_button = tk.Button(self, text="Generate Pairings", command=self.generate_pairings)
+        self.generate_pairings_button = tk.Button(self, text="Generate Pairings", command=self.generate_pairings, width=40)
         self.generate_pairings_button.pack(side="top")
 
         # Play game button
-        self.play_game_button = tk.Button(self, text="Play Game", command=self.play_game)
+        self.play_game_button = tk.Button(self, text="Play Game", command=self.play_game, width=40)
         self.play_game_button.pack(side="top")
 
         # Quit button
-        self.quit_button = tk.Button(self, text="Quit", fg="red", command=self.master.destroy)
+        self.quit_button = tk.Button(self, text="Quit", fg="red", command=self.master.destroy, width=40)
         self.quit_button.pack(side="bottom")
 
     def add_player(self):
         # Open a dialog box to get player name
         player_name = simpledialog.askstring("Add Player", "Enter player name:")
-        if player_name:
-            # Check if player name is already in CSV file
+        if not player_name:
+            messagebox.showerror("Error", "You did not type a name.")
+            return
+
+        # Check player name length
+        if len(player_name) < 3 or len(player_name) > 10:
+            messagebox.showerror("Error", "Invalid name type (3 - 10 characters)")
+            return
+
+        # Check if player name is already in CSV file
+        try:
             with open('players.csv', mode='r') as file:
                 reader = csv.reader(file)
                 player_names = [row[0] for row in reader]
-                if player_name in player_names:
-                    messagebox.showerror("Error", "Player name already exists")
-                    return
-
-            # Add player to list and CSV file
-            self.players.append({"name": player_name, "points": 0})
-            with open('players.csv', mode='a', newline='') as file:
+        except FileNotFoundError:
+            # Create the players.csv file if it doesn't exist
+            with open('players.csv', mode='w', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow([player_name, 0])
-            print(f"Added player {player_name} to CSV file")
+                writer.writerow(['Name', 'Points'])
+            player_names = []
+
+        if player_name in player_names:
+            messagebox.showerror("Error", "Player name already exists")
+            return
+
+        # Add player to list and CSV file
+        self.players.append({"name": player_name, "points": 0})
+        with open('players.csv', mode='a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow([player_name, 0])
+        print(f"Added player {player_name} to CSV file")
 
     def add_from_list(self):
         # Read player names from CSV file
+
+        try:
+            with open('players.csv', mode='r') as file:
+                reader = csv.reader(file)
+                player_names = [row[0] for row in reader]
+        except FileNotFoundError:
+            messagebox.showinfo("Information", "Add first player to create list.")
+            return
+
         with open('players.csv', mode='r') as file:
             reader = csv.reader(file)
             player_names = [row[0] for row in reader]
