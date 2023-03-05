@@ -67,7 +67,7 @@ class Application(tk.Frame):
         # Show pairings in a dialog box
         pairings_list = "\n".join([f"{i+1}. {pairing[0]['name']} vs. {pairing[1]['name'] if pairing[1] else 'BYE'}" for i, pairing in enumerate(self.pairings)])
         tk.messagebox.showinfo(f"Round {self.round} Pairings", pairings_list)
-
+        self.generate_pairings_button.config(state='disabled')
         # Increment round
         self.round += 1
 
@@ -108,6 +108,7 @@ class Application(tk.Frame):
         # If all players have played, generate next round
         if len(self.round_results) == len(self.players) / 2:
             self.generate_pairings()
+        self.generate_pairings_button.config(state='normal')
 
     def generate_next_round(self):
         # Reset round results
