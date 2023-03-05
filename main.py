@@ -51,12 +51,20 @@ class Application(tk.Frame):
             return
 
         # Check if player name is already in CSV file
-        with open('players.csv', mode='r') as file:
-            reader = csv.reader(file)
-            player_names = [row[0] for row in reader]
-            if player_name in player_names:
-                messagebox.showerror("Error", "Player name already exists")
-                return
+        try:
+            with open('players.csv', mode='r') as file:
+                reader = csv.reader(file)
+                player_names = [row[0] for row in reader]
+        except FileNotFoundError:
+            # Create the players.csv file if it doesn't exist
+            with open('players.csv', mode='w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(['Name', 'Points'])
+            player_names = []
+
+        if player_name in player_names:
+            messagebox.showerror("Error", "Player name already exists")
+            return
 
         # Add player to list and CSV file
         self.players.append({"name": player_name, "points": 0})
