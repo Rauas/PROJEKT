@@ -2,6 +2,7 @@ import tkinter as tk
 from random import shuffle, sample
 import tkinter.simpledialog as simpledialog
 import tkinter.messagebox as messagebox
+import csv
 
 
 class Application(tk.Frame):
@@ -21,9 +22,14 @@ class Application(tk.Frame):
         self.add_player_button = tk.Button(self, text="Add Player", command=self.add_player)
         self.add_player_button.pack(side="top")
 
+        # Add from list button
+        self.add_from_list = tk.Button(self, text="Add from list", command=self.add_from_list)
+        self.add_from_list.pack(side="top")
+
         # Show player list button
         self.show_players_button = tk.Button(self, text="Show Player List", command=self.show_player_list)
         self.show_players_button.pack(side="top")
+
 
         # Generate pairings button
         self.generate_pairings_button = tk.Button(self, text="Generate Pairings", command=self.generate_pairings)
@@ -41,13 +47,66 @@ class Application(tk.Frame):
         # Open a dialog box to get player name
         player_name = simpledialog.askstring("Add Player", "Enter player name:")
         if player_name:
+            # Check if player name is already in CSV file
+            with open('players.csv', mode='r') as file:
+                reader = csv.reader(file)
+                player_names = [row[0] for row in reader]
+                if player_name in player_names:
+                    messagebox.showerror("Error", "Player name already exists")
+                    return
+
+            # Add player to list and CSV file
             self.players.append({"name": player_name, "points": 0})
-            print(f"Added player {player_name}")
+            with open('players.csv', mode='a', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow([player_name, 0])
+            print(f"Added player {player_name} to CSV file")
+
+    def add_from_list(self):
+        # Read player names from CSV file
+        with open('players.csv', mode='r') as file:
+            reader = csv.reader(file)
+            player_names = [row[0] for row in reader]
+
+        # Create pop-up window with checkboxes to choose players
+        top = tk.Toplevel(self)
+        top.title("Choose Player")
+        tk.Label(top, text="Select player(s):").pack()
+        selected_players = []
+        for player_name in player_names:
+            var = tk.IntVar()
+            chkbox = tk.Checkbutton(top, text=player_name, variable=var)
+            chkbox.player_name = player_name
+            chkbox.var = var
+            chkbox.pack(anchor='w')
+
+        # Add Accept button to pop-up window
+        accept_button = tk.Button(top, text="Accept", command=lambda: self.add_selected_players(selected_players, top))
+        accept_button.pack()
+
+    def add_selected_players(self, selected_players, top):
+        for chkbox in top.winfo_children():
+            if isinstance(chkbox, tk.Checkbutton) and chkbox.var.get() == 1:
+                player_name = chkbox.player_name
+                # Check if player is already in the list
+                if any(player["name"] == player_name for player in self.players):
+                    messagebox.showwarning("Warning", f"{player_name} is already in the list.")
+                else:
+                    selected_players.append(player_name)
+                    self.players.append({"name": player_name, "points": 0})
+                    print(f"Added player {player_name}")
+        top.destroy()
 
     def show_player_list(self):
+        # Sort players based on their points in descending order
+        sorted_players = sorted(self.players, key=lambda player: player['points'], reverse=True)
+
+        # Construct the player list string with the sorted players
+        player_list = "\n".join(
+            [f"{i + 1}. {player['name']} ({player['points']} points)" for i, player in enumerate(sorted_players)])
+
         # Open a dialog box to show player list
-        player_list = "\n".join([f"{i+1}. {player['name']} ({player['points']} points)" for i, player in enumerate(self.players)])
-        tk.messagebox.showinfo("Player List", player_list)
+        tk.messagebox.showinfo("Player Ranking", player_list)
 
     def generate_pairings(self):
         # Shuffle player list
@@ -161,6 +220,26 @@ class Application(tk.Frame):
 
         # Increment round
         self.round += 1
+
+    def add_players_from_file(self):
+        # Read players from file
+        try:
+            with open("players.csv", "r") as f:
+                existing_players = [line.strip() for line in f.readlines()]
+        except FileNotFoundError:
+            existing_players = []
+
+        # Create pop-up window with checkboxes for each player
+        window = tk.Toplevel(self)
+        window.title("Add Players")
+        tk.Label(window, text="Select players to add:").grid(row=0, column=0, sticky="w")
+        checkboxes = []
+        for i, player in enumerate(existing_players):
+            var = tk.BooleanVar()
+            checkboxes.append(var)
+            tk.Checkbutton(window, text=player, variable=var).grid(row=i+1, column=0, sticky="w")
+
+
 
 
 root = tk.Tk()
