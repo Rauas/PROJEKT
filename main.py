@@ -26,33 +26,29 @@ class Application(tk.Frame):
         background_color = "black"
         self.master.configure(background=background_color)
 
- #       self.change_background()
-
-
-
-
-  #  def change_background(self):
-        #  / Users / katarzynabuszka / Downloads
-   #     file_path = "/Users/katarzynabuszka/Downloads/tlo_2.png"  # Ścieżka do pliku tła
-   #     image = Image.open(file_path)
-   #     photo = ImageTk.PhotoImage(image)
-    #    background_label = tk.Label(self.master, image=photo)
-    #    background_label.image = photo
-   #     background_label.place(x=0, y=0, relwidth=1, relheight=1)
-
-    def create_widgets(self):
-
-        # Wczytanie obrazka
-        file_path = "/Users/katarzynabuszka/Downloads/tlo_2.png"
-        image = Image.open(file_path)
-        image = image.resize((300, 300), Image.LANCZOS)  # Dostosowanie rozmiaru obrazka
-        photo = ImageTk.PhotoImage(image)
+        # Wczytanie obrazka lewa strona
+        file_path1 = "/Users/katarzynabuszka/Downloads/obrazek.jpg"
+        image1 = Image.open(file_path1)
+        image1 = image1.resize((300, 300), Image.LANCZOS)  # Dostosowanie rozmiaru obrazka
+        photo1 = ImageTk.PhotoImage(image1)
 
         # Tworzenie etykiety z obrazkiem i ustawienie pozycji
-        label = Label(root, image=photo)
-        label.place(x=100, y=100)  # Ustawienie pozycji x=100, y=100
+        self.label = Label(self.master, image=photo1)
+        self.label.image = photo1
+        self.label.place(x=100, y=300)
 
+        # Wczytanie obrazka prawa strona
+        file_path2 = "/Users/katarzynabuszka/Downloads/obrazek.jpg"
+        image2 = Image.open(file_path2)
+        image2 = image2.resize((300, 300), Image.LANCZOS)  # Dostosowanie rozmiaru obrazka
+        photo2 = ImageTk.PhotoImage(image2)
 
+        # Tworzenie etykiety z obrazkiem i ustawienie pozycji
+        self.label = Label(self.master, image=photo2)
+        self.label.image = photo2
+        self.label.place(x=950, y=300)
+
+    def create_widgets(self):
         background_color = 'black'
         highlight_thickness = 10
         button_width = 25
