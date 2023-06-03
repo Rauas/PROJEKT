@@ -103,6 +103,9 @@ class Application(tk.Frame):
             reader = csv.reader(file)
             player_names = [row[0] for row in reader]
 
+        # Exclude the header row from the player names
+        player_names = player_names[1:]
+
         # Create pop-up window with checkboxes to choose players
         top = tk.Toplevel(self)
         top.title("Choose Player")
@@ -145,28 +148,35 @@ class Application(tk.Frame):
 
     def generate_pairings(self):
         if len(self.players) < 3:
-            tk.messagebox.showerror("Error", "At least 3 players are required to generate pairings.")
+            messagebox.showerror("Error", "At least 3 players are required to generate pairings.")
         else:
+            num_players = len(self.players)
+
+            # Determine the maximum number of pairs possible based on the number of players
+            max_pairs = num_players // 2
+
+            # Check if the number of players is odd, and if so, subtract 1 from the maximum pairs
+            if num_players % 2 != 0:
+                max_pairs -= 1
+
             # Shuffle player list
             shuffle(self.players)
 
             # Create pairings
             self.pairings = []
-            num_players = len(self.players)
-            for i in range(0, num_players, 2):
-                if i + 1 == num_players:
-                    # Odd number of players, so the last player gets a bye
-                    self.players[i]["points"] += 1
-                    self.pairings.append((self.players[i], None))
-                else:
-                    self.pairings.append((self.players[i], self.players[i + 1]))
+
+            for i in range(max_pairs):
+                player1 = self.players[i]
+                player2 = self.players[i + max_pairs]
+                self.pairings.append((player1, player2))
 
             # Show pairings in a dialog box
             pairings_list = "\n".join(
-                [f"{i + 1}. {pairing[0]['name']} vs. {pairing[1]['name'] if pairing[1] else 'BYE'}" for i, pairing in
+                [f"{i + 1}. {pairing[0]['name']} vs. {pairing[1]['name']}" for i, pairing in
                  enumerate(self.pairings)])
-            tk.messagebox.showinfo(f"Round {self.round} Pairings", pairings_list)
+            messagebox.showinfo(f"Round {self.round} Pairings", pairings_list)
             self.generate_pairings_button.config(state='disabled')
+
             # Increment round
             self.round += 1
 
