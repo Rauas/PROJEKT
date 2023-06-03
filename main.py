@@ -20,8 +20,8 @@ class Application(tk.Frame):
         self.pairing_history = []  # Maintain a history of player pairings for each round
         self.pack()
         self.create_widgets()
-        self.master.title('tournament')
-        self.master.geometry('1366x768')
+        self.master.title('Tournament')
+        self.master.geometry('1066x568')
 
         background_color = "black"
         self.master.configure(background=background_color)
