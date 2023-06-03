@@ -5,6 +5,7 @@ import tkinter.messagebox as messagebox
 import csv
 
 
+
 class Application(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
@@ -41,6 +42,10 @@ class Application(tk.Frame):
         # Play game button
         self.play_game_button = tk.Button(self, text="Who won?", command=self.play_game, width=40)
         self.play_game_button.pack(side="top")
+
+        # # Battle timer
+        # self.battle_timer_button = tk.Button(self, text="battle_timer", command=timer.Timer, width=40)
+        # self.battle_timer_button.pack(side="top")
 
         # Quit button
         self.quit_button = tk.Button(self, text="Quit", fg="red", command=self.master.destroy, width=40)
