@@ -103,6 +103,9 @@ class Application(tk.Frame):
             reader = csv.reader(file)
             player_names = [row[0] for row in reader]
 
+        # Exclude the header row from the player names
+        player_names = player_names[1:]
+
         # Create pop-up window with checkboxes to choose players
         top = tk.Toplevel(self)
         top.title("Choose Player")
