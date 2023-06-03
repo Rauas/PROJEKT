@@ -133,15 +133,18 @@ class Application(tk.Frame):
         top.destroy()
 
     def show_player_list(self):
-        # Sort players based on their points in descending order
-        sorted_players = sorted(self.players, key=lambda player: player['points'], reverse=True)
+        if len(self.players) == 0:
+            tk.messagebox.showerror("Error", "No players have been added.")
+        else:
+            # Sort players based on their points in descending order
+            sorted_players = sorted(self.players, key=lambda player: player['points'], reverse=True)
 
-        # Construct the player list string with the sorted players
-        player_list = "\n".join(
-            [f"{i + 1}. {player['name']} ({player['points']} points)" for i, player in enumerate(sorted_players)])
+            # Construct the player list string with the sorted players
+            player_list = "\n".join(
+                [f"{i + 1}. {player['name']} ({player['points']} points)" for i, player in enumerate(sorted_players)])
 
-        # Open a dialog box to show player list
-        tk.messagebox.showinfo("Player Ranking", player_list)
+            # Open a dialog box to show player list
+            tk.messagebox.showinfo("Player Ranking", player_list)
 
     def generate_pairings(self):
         if len(self.players) < 3:
@@ -231,8 +234,11 @@ class Application(tk.Frame):
         self.generate_pairings_button.config(state='normal')
 
         def check_selected_players():
-            all_selected = all(winner.get() for winner in winners)
-            accept_button.config(state='normal' if all_selected else 'disabled')
+            for winner in winners:
+                if winner.get():
+                    accept_button.config(state='normal')
+                    return
+            accept_button.config(state='disabled')
 
         # Call the check_selected_players function whenever a radio button is clicked
         for i in range(len(winners)):
