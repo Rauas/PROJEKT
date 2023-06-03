@@ -19,14 +19,10 @@ class Application(tk.Frame):
         self.pack()
         self.create_widgets()
         self.master.title('tournament')
-
-
         self.master.geometry('1366x768')
 
         background_color = "black"
         self.master.configure(background=background_color)
-
-
 
     def create_widgets(self):
 
