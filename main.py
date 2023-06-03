@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import *
+from tkinter import ttk
+
 from random import shuffle, sample
 import tkinter.simpledialog as simpledialog
 import tkinter.messagebox as messagebox
@@ -16,42 +18,118 @@ class Application(tk.Frame):
         self.round_results = []
         self.pack()
         self.create_widgets()
-        self.master.geometry('800x160')
         self.master.title('tournament')
 
 
-        self.master.geometry('1200x700')
-        self.master.configure(background='black')
+        self.master.geometry('1366x768')
+
+        background_color = "black"
+        self.master.configure(background=background_color)
+
 
 
     def create_widgets(self):
 
-        # Add player button
+        background_color = "black"
+        highlight_thickness = 10
+        button_width = 25
+        button_height = 4
+        font_style = 'Arial'
+        font_size = 18
+        font_weight = 'bold'
+        font_color1 = '#484a49'
+        font_color2 = '#211a87'
 
-        self.add_player_button = tk.Button(self, text="Add Player", command=self.add_player, width=40, bg='black', fg='black')
-        self.add_player_button.grid(row=0, column=0, padx=20, pady=20) 
-      #  self.add_player_button.place(relx=0.5, rely=0.25, anchor='center')
+        # Add player button
+        self.add_player_button = tk.Button(self,  text="ADD NEW PLAYER", command=self.add_player,
+                                           foreground=font_color2,
+                                           highlightbackground=background_color,
+                                           highlightcolor=background_color,
+                                           highlightthickness=highlight_thickness,
+                                           height=button_height,
+                                           width=button_width,
+                                           borderwidth=0,
+                                           relief="flat",
+                                           font=(font_style, font_size, font_weight))
+        self.add_player_button.grid(row=0, column=0, padx=0, pady=0)
 
         # Add from list button
-        self.add_from_list = tk.Button(self, text="Add from list", command=self.add_from_list, width=40)
-        self.add_from_list.grid(row=1, column=0, padx=20, pady=20)
+        self.add_from_list = tk.Button(self, text="ADD PLAYER FROM LIST", command=self.add_from_list,
+                                       foreground=font_color2,
+                                       highlightbackground=background_color,
+                                       highlightcolor=background_color,
+                                       highlightthickness=highlight_thickness,
+                                       height=button_height,
+                                       width=button_width,
+                                       borderwidth=0,
+                                       relief="flat",
+                                       font=(font_style, font_size, font_weight))
+        self.add_from_list.grid(row=1, column=0, padx=0, pady=0)
 
         # Show player list button
-        self.show_players_button = tk.Button(self, text="Show Player List", command=self.show_player_list, width=40)
-        self.show_players_button.grid(row=2, column=0, padx=20, pady=20)
-
+        self.show_players_button = tk.Button(self, text="SHOW PLAYERS LIST", command=self.show_player_list,
+                                             foreground=font_color2,
+                                             highlightbackground=background_color,
+                                             highlightcolor=background_color,
+                                             highlightthickness=highlight_thickness,
+                                             height=button_height,
+                                             width=button_width,
+                                             borderwidth=0,
+                                             relief="flat",
+                                             font=(font_style, font_size, font_weight))
+        self.show_players_button.grid(row=2, column=0, padx=0, pady=0)
 
         # Generate pairings button
-        self.generate_pairings_button = tk.Button(self, text="Generate Pairings", command=self.generate_pairings, width=40)
-        self.generate_pairings_button.grid(row=3, column=0, padx=20, pady=20)
+        self.generate_pairings_button = tk.Button(self, text="GENERATE PAIRINGS", command=self.generate_pairings,
+                                                  foreground=font_color1,
+                                                  highlightbackground=background_color,
+                                                  highlightcolor=background_color,
+                                                  highlightthickness=highlight_thickness,
+                                                  height=button_height,
+                                                  width=button_width,
+                                                  borderwidth=0,
+                                                  relief="flat",
+                                                  font=(font_style, font_size, font_weight))
+        self.generate_pairings_button.grid(row=3, column=0, padx=0, pady=0)
 
         # Play game button        
-        self.play_game_button = tk.Button(self, text="Who won?", command=self.play_game, width=40)
-        self.play_game_button.grid(row=4, column=0, padx=20, pady=20)
+        self.play_game_button = tk.Button(self, text="ADD RESULTS", command=self.play_game,
+                                          foreground=font_color1,
+                                          highlightbackground=background_color,
+                                          highlightcolor=background_color,
+                                          highlightthickness=highlight_thickness,
+                                          height=button_height,
+                                          width=button_width,
+                                          borderwidth=0,
+                                          relief="flat",
+                                          font=(font_style, font_size, font_weight))
+        self.play_game_button.grid(row=4, column=0, padx=0, pady=0)
+
+        # Show player list button with results
+        self.show_players_button_results = tk.Button(self, text="SHOW CURRENT RESULTS", command=self.show_player_list,
+                                             foreground=font_color1,
+                                             highlightbackground=background_color,
+                                             highlightcolor=background_color,
+                                             highlightthickness=highlight_thickness,
+                                             height=button_height,
+                                             width=button_width,
+                                             borderwidth=0,
+                                             relief="flat",
+                                             font=(font_style, font_size, font_weight))
+        self.show_players_button_results.grid(row=5, column=0, padx=0, pady=0)
 
         # Quit button
-        self.quit_button = tk.Button(self, text="Quit", fg="red", command=self.master.destroy, width=40)
-        self.quit_button.grid(row=5, column=0, padx=20, pady=20)
+        self.quit_button = tk.Button(self, text="QUIT", command=self.master.destroy,
+                                     foreground='red',
+                                     highlightbackground=background_color,
+                                     highlightcolor=background_color,
+                                     highlightthickness=highlight_thickness,
+                                     height=button_height,
+                                     width=button_width,
+                                     borderwidth=0,
+                                     relief="flat",
+                                     font=(font_style, font_size, font_weight))
+        self.quit_button.grid(row=6, column=0, padx=0, pady=0)
 
     def add_player(self):
         # Open a dialog box to get player name
