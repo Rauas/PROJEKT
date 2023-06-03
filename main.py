@@ -178,7 +178,7 @@ class Application(tk.Frame):
             self.generate_pairings_button.config(state='disabled')
 
             # Increment round
-            self.round += 1
+          #  self.round += 1
 
     def play_game(self):
         # Check if there are any pairings to play
