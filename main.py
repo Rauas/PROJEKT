@@ -4,6 +4,7 @@ from random import shuffle, sample
 import tkinter.simpledialog as simpledialog
 import tkinter.messagebox as messagebox
 import csv
+from datetime import datetime
 
 
 class Application(tk.Frame):
@@ -22,7 +23,6 @@ class Application(tk.Frame):
 
         self.master.geometry('1200x700')
         self.master.configure(background='black')
-
 
     def create_widgets(self):
 
@@ -236,9 +236,50 @@ class Application(tk.Frame):
 
         # Show the round results
         round_results_str = "\n".join(
-            [f"{result['pairing'][0]['name']} vs {result['pairing'][1]['name']}: {result['winner']['name']} wins" for
+            [f"{result['pairing'][0]['name']} vs {result['pairing'][1]['name']}: {result['winner']['name']} wins" if
+             result['winner'] is not None else f"{result['pairing'][0]['name']}: BYE" for
              result in self.round_results])
         messagebox.showinfo(f"Round {self.round} Results", round_results_str)
+
+        # Write the round results to the CSV file
+        with open('results.csv', mode='a', newline='') as file:
+            writer = csv.writer(file)
+
+            if file.tell() == 0:  # Check if the file is empty
+                headers = ['index', 'round', 'matched players', 'winner', 'date', 'hour', 'minute']
+                writer.writerow(headers)
+
+            current_index = 1  # Start index from 1
+
+            for result in self.round_results:
+                pairing = result['pairing']
+                winner = result['winner']
+                current_time = datetime.now()
+
+                if pairing[1] is None:  # Check if a player received a bye
+                    bye_row = [
+                        current_index,
+                        self.round,
+                        pairing[0]['name'],
+                        'BYE',
+                        current_time.strftime("%Y-%m-%d"),
+                        current_time.strftime("%H"),
+                        current_time.strftime("%M")
+                    ]
+                    writer.writerow(bye_row)
+                else:
+                    row = [
+                        current_index,
+                        self.round,
+                        f"{pairing[0]['name']} vs {pairing[1]['name']}",
+                        winner['name'] if winner is not None else 'BYE',
+                        current_time.strftime("%Y-%m-%d"),
+                        current_time.strftime("%H"),
+                        current_time.strftime("%M")
+                    ]
+                    writer.writerow(row)
+
+                current_index += 1  # Increment the index for the next row
 
         # Increment the round number and reset the round results
         self.round += 1
@@ -246,6 +287,22 @@ class Application(tk.Frame):
 
         # Close the game window
         game_window.destroy()
+
+    def export_results_to_csv(self):
+        # Open the results.csv file in append mode
+        with open('results.csv', mode='a', newline='') as file:
+            writer = csv.writer(file)
+
+            # Write the header if the file is empty
+            if file.tell() == 0:
+                writer.writerow(['Round', 'Player 1', 'Player 2', 'Winner'])
+
+            # Write the results for each pairing in the round
+            for result in self.round_results:
+                player1 = result['pairing'][0]['name']
+                player2 = result['pairing'][1]['name'] if result['pairing'][1] else 'BYE'
+                winner = result['winner']['name']
+                writer.writerow([self.round, player1, player2, winner])
 
     def add_players_from_file(self):
         # Read players from file
