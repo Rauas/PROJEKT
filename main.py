@@ -15,11 +15,11 @@ class Application(tk.Frame):
         self.pairings = []
         self.round = 1
         self.round_results = []
+        self.pairing_history = []  # Maintain a history of player pairings for each round
         self.pack()
         self.create_widgets()
         self.master.geometry('800x160')
         self.master.title('tournament')
-
 
         self.master.geometry('1200x700')
         self.master.configure(background='black')
@@ -185,7 +185,6 @@ class Application(tk.Frame):
             tk.messagebox.showinfo(f"Round {self.round} Pairings", pairings_list)
             self.generate_pairings_button.config(state='disabled')
             # Increment round
-            # self.round += 1
 
     def play_game(self):
         # Check if there are any pairings to play
@@ -246,6 +245,9 @@ class Application(tk.Frame):
 
         # Initially disable the "Accept" button
         accept_button.config(state='disabled')
+
+        self.add_player_button.config(state='disabled')
+        self.add_from_list.config(state='disabled')
 
     def accept_results(self, winners, game_window):
         # Check if all pairs have been played
