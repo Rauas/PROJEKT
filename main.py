@@ -4,6 +4,7 @@ from random import shuffle, sample
 import tkinter.simpledialog as simpledialog
 import tkinter.messagebox as messagebox
 import csv
+from datetime import datetime
 
 
 class Application(tk.Frame):
@@ -14,15 +15,14 @@ class Application(tk.Frame):
         self.pairings = []
         self.round = 1
         self.round_results = []
+        self.pairing_history = []  # Maintain a history of player pairings for each round
         self.pack()
         self.create_widgets()
         self.master.geometry('800x160')
         self.master.title('tournament')
 
-
         self.master.geometry('1200x700')
         self.master.configure(background='black')
-
 
     def create_widgets(self):
 
@@ -136,15 +136,18 @@ class Application(tk.Frame):
         top.destroy()
 
     def show_player_list(self):
-        # Sort players based on their points in descending order
-        sorted_players = sorted(self.players, key=lambda player: player['points'], reverse=True)
+        if len(self.players) == 0:
+            tk.messagebox.showerror("Error", "No players have been added.")
+        else:
+            # Sort players based on their points in descending order
+            sorted_players = sorted(self.players, key=lambda player: player['points'], reverse=True)
 
-        # Construct the player list string with the sorted players
-        player_list = "\n".join(
-            [f"{i + 1}. {player['name']} ({player['points']} points)" for i, player in enumerate(sorted_players)])
+            # Construct the player list string with the sorted players
+            player_list = "\n".join(
+                [f"{i + 1}. {player['name']} ({player['points']} points)" for i, player in enumerate(sorted_players)])
 
-        # Open a dialog box to show player list
-        tk.messagebox.showinfo("Player Ranking", player_list)
+            # Open a dialog box to show player list
+            tk.messagebox.showinfo("Player Ranking", player_list)
 
     def generate_pairings(self):
         if len(self.players) < 3:
@@ -156,13 +159,27 @@ class Application(tk.Frame):
             # Create pairings
             self.pairings = []
             num_players = len(self.players)
+            used_players = []
             for i in range(0, num_players, 2):
                 if i + 1 == num_players:
                     # Odd number of players, so the last player gets a bye
                     self.players[i]["points"] += 1
                     self.pairings.append((self.players[i], None))
+                    used_players.append(self.players[i])
                 else:
-                    self.pairings.append((self.players[i], self.players[i + 1]))
+                    # Find the first available pairing
+                    pairing_found = False
+                    for j in range(i + 1, num_players):
+                        if self.players[i] not in used_players and self.players[j] not in used_players:
+                            self.pairings.append((self.players[i], self.players[j]))
+                            used_players.extend([self.players[i], self.players[j]])
+                            pairing_found = True
+                            break
+
+                    # If no available pairing is found, display an error message
+                    if not pairing_found:
+                        tk.messagebox.showerror("Error", "Unable to create pairings without repetitions.")
+                        return
 
             # Show pairings in a dialog box
             pairings_list = "\n".join(
@@ -171,7 +188,6 @@ class Application(tk.Frame):
             tk.messagebox.showinfo(f"Round {self.round} Pairings", pairings_list)
             self.generate_pairings_button.config(state='disabled')
             # Increment round
-            self.round += 1
 
     def play_game(self):
         # Check if there are any pairings to play
@@ -219,6 +235,23 @@ class Application(tk.Frame):
         accept_button.pack()
         self.generate_pairings_button.config(state='normal')
 
+        def check_selected_players():
+            for winner in winners:
+                if winner.get():
+                    accept_button.config(state='normal')
+                    return
+            accept_button.config(state='disabled')
+
+        # Call the check_selected_players function whenever a radio button is clicked
+        for i in range(len(winners)):
+            winners[i].trace('w', lambda *args, i=i: check_selected_players())
+
+        # Initially disable the "Accept" button
+        accept_button.config(state='disabled')
+
+        self.add_player_button.config(state='disabled')
+        self.add_from_list.config(state='disabled')
+
     def accept_results(self, winners, game_window):
         # Check if all pairs have been played
         if len(winners) != len(self.pairings):
@@ -239,9 +272,50 @@ class Application(tk.Frame):
 
         # Show the round results
         round_results_str = "\n".join(
-            [f"{result['pairing'][0]['name']} vs {result['pairing'][1]['name']}: {result['winner']['name']} wins" for
+            [f"{result['pairing'][0]['name']} vs {result['pairing'][1]['name']}: {result['winner']['name']} wins" if
+             result['winner'] is not None else f"{result['pairing'][0]['name']}: BYE" for
              result in self.round_results])
         messagebox.showinfo(f"Round {self.round} Results", round_results_str)
+
+        # Write the round results to the CSV file
+        with open('results.csv', mode='a', newline='') as file:
+            writer = csv.writer(file)
+
+            if file.tell() == 0:  # Check if the file is empty
+                headers = ['index', 'round', 'matched players', 'winner', 'date', 'hour', 'minute']
+                writer.writerow(headers)
+
+            current_index = 1  # Start index from 1
+
+            for result in self.round_results:
+                pairing = result['pairing']
+                winner = result['winner']
+                current_time = datetime.now()
+
+                if pairing[1] is None:  # Check if a player received a bye
+                    bye_row = [
+                        current_index,
+                        self.round,
+                        pairing[0]['name'],
+                        'BYE',
+                        current_time.strftime("%Y-%m-%d"),
+                        current_time.strftime("%H"),
+                        current_time.strftime("%M")
+                    ]
+                    writer.writerow(bye_row)
+                else:
+                    row = [
+                        current_index,
+                        self.round,
+                        f"{pairing[0]['name']} vs {pairing[1]['name']}",
+                        winner['name'] if winner is not None else 'BYE',
+                        current_time.strftime("%Y-%m-%d"),
+                        current_time.strftime("%H"),
+                        current_time.strftime("%M")
+                    ]
+                    writer.writerow(row)
+
+                current_index += 1  # Increment the index for the next row
 
         # Increment the round number and reset the round results
         self.round += 1
@@ -249,6 +323,36 @@ class Application(tk.Frame):
 
         # Close the game window
         game_window.destroy()
+
+    def export_results_to_csv(self):
+        # Write the results to the CSV file
+        with open('results.csv', mode='w', newline='') as file:
+            writer = csv.writer(file)
+            headers = ['Round', 'Matched Player 1', 'Matched Player 2', 'Winner']
+            writer.writerow(headers)
+
+            for result in self.results:
+                pairing = result['pairing']
+                winner = result['winner']
+
+                if pairing[1] is None:  # Check if a player received a bye
+                    bye_row = [
+                        result['round'],
+                        pairing[0]['name'],
+                        'BYE',
+                        'BYE'
+                    ]
+                    writer.writerow(bye_row)
+                else:
+                    row = [
+                        result['round'],
+                        pairing[0]['name'],
+                        pairing[1]['name'],
+                        winner['name'] if winner is not None else 'BYE'
+                    ]
+                    writer.writerow(row)
+
+        messagebox.showinfo("Export Complete", "Results exported to results.csv")
 
     def add_players_from_file(self):
         # Read players from file
@@ -267,58 +371,6 @@ class Application(tk.Frame):
             var = tk.BooleanVar()
             checkboxes.append(var)
             tk.Checkbutton(window, text=player, variable=var).grid(row=i+1, column=0, sticky="w")
-
-    def generate_next_round(self):
-        # Reset round results
-        self.round_results = []
-
-        # Check if the tournament is over
-        if self.round > self.num_rounds:
-            # Show final standings in a dialog box
-            standings_list = "\n".join(
-                [f"{i + 1}. {player['name']} ({player['points']} points)" for i, player in enumerate(self.players)])
-            tk.messagebox.showinfo("Final Standings", standings_list)
-
-            # Disable buttons
-            self.add_player_button.config(state="disabled")
-            self.show_players_button.config(state="disabled")
-            self.generate_pairings_button.config(state="disabled")
-
-            # Show a message that the tournament is over
-            messagebox.showinfo("Tournament Over", "The tournament is over!")
-            return
-
-        # Shuffle players with the same number of points
-        points_dict = {}
-        for player in self.players:
-            points = player['points']
-            if points not in points_dict:
-                points_dict[points] = []
-            points_dict[points].append(player)
-        players_list = []
-        for points in sorted(points_dict.keys(), reverse=True):
-            shuffle(points_dict[points])
-            players_list.extend(points_dict[points])
-
-        # Create pairings
-        self.pairings = []
-        num_players = len(players_list)
-        for i in range(0, num_players, 2):
-            if i + 1 == num_players:
-                # Odd number of players, so the last player gets a bye
-                players_list[i]["points"] += 1
-                self.pairings.append((players_list[i], None))
-            else:
-                self.pairings.append((players_list[i], players_list[i + 1]))
-
-        # Show pairings in a dialog box
-        pairings_list = "\n".join(
-            [f"{i + 1}. {pairing[0]['name']} vs. {pairing[1]['name'] if pairing[1] else 'BYE'}" for i, pairing in
-             enumerate(self.pairings)])
-        tk.messagebox.showinfo(f"Round {self.round} Pairings", pairings_list)
-
-        # Increment round
-        self.round += 1
 
 
 root = tk.Tk()
