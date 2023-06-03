@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
-
+from PIL import ImageTk, Image
 from random import shuffle, sample
 import tkinter.simpledialog as simpledialog
 import tkinter.messagebox as messagebox
@@ -26,9 +26,34 @@ class Application(tk.Frame):
         background_color = "black"
         self.master.configure(background=background_color)
 
+ #       self.change_background()
+
+
+
+
+  #  def change_background(self):
+        #  / Users / katarzynabuszka / Downloads
+   #     file_path = "/Users/katarzynabuszka/Downloads/tlo_2.png"  # Ścieżka do pliku tła
+   #     image = Image.open(file_path)
+   #     photo = ImageTk.PhotoImage(image)
+    #    background_label = tk.Label(self.master, image=photo)
+    #    background_label.image = photo
+   #     background_label.place(x=0, y=0, relwidth=1, relheight=1)
+
     def create_widgets(self):
 
-        background_color = "black"
+        # Wczytanie obrazka
+        file_path = "/Users/katarzynabuszka/Downloads/tlo_2.png"
+        image = Image.open(file_path)
+        image = image.resize((300, 300), Image.LANCZOS)  # Dostosowanie rozmiaru obrazka
+        photo = ImageTk.PhotoImage(image)
+
+        # Tworzenie etykiety z obrazkiem i ustawienie pozycji
+        label = Label(root, image=photo)
+        label.place(x=100, y=100)  # Ustawienie pozycji x=100, y=100
+
+
+        background_color = 'black'
         highlight_thickness = 10
         button_width = 25
         button_height = 4
@@ -128,6 +153,7 @@ class Application(tk.Frame):
                                      relief="flat",
                                      font=(font_style, font_size, font_weight))
         self.quit_button.grid(row=6, column=0, padx=0, pady=0)
+
 
     def add_player(self):
         # Open a dialog box to get player name
