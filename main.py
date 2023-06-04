@@ -183,6 +183,12 @@ class Application(tk.Frame):
                                      font=(font_style, font_size, font_weight))
         self.quit_button.grid(row=5, column=2, padx=0, pady=0)
 
+        # Round information label
+        self.round_label = tk.Label(self, text="Current Round: {}".format(self.round),
+                                    foreground=font_color1,
+                                    background=background_color,
+                                    font=(font_style, font_size, font_weight))
+        self.round_label.grid(row=7, column=0, padx=0, pady=10)
 
     def add_player(self):
         # Open a dialog box to get player name
@@ -224,7 +230,6 @@ class Application(tk.Frame):
 
     def add_from_list(self):
         # Read player names from CSV file
-
         try:
             with open('players.csv', mode='r') as file:
                 reader = csv.reader(file)
@@ -459,8 +464,7 @@ class Application(tk.Frame):
 
         # Increment the round number and reset the round results
         self.round += 1
-        self.round_results = []
-
+        self.round_label.config(text="Current Round: {}".format(self.round))
         # Close the game window
         game_window.destroy()
         root.deiconify()
@@ -512,6 +516,18 @@ class Application(tk.Frame):
             var = tk.BooleanVar()
             checkboxes.append(var)
             tk.Checkbutton(window, text=player, variable=var).grid(row=i+1, column=0, sticky="w")
+
+
+    def next_round(self):
+        if self.round < self.total_rounds:
+            self.round += 1
+            self.update_round_label()  # Add this line to update the round label
+            self.update_question()
+        else:
+            messagebox.showinfo("Game Over", "No more rounds!")
+
+    def update_round_label(self):
+        self.round_label.config(text="Current Round: {}".format(self.round))
 
     def delete_csv_content(self):
         try:
