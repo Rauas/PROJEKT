@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
-
+from tkinter import scrolledtext
 from random import shuffle, sample
 import tkinter.simpledialog as simpledialog
 import tkinter.messagebox as messagebox
@@ -25,6 +25,22 @@ class Application(tk.Frame):
 
         background_color = "black"
         self.master.configure(background=background_color)
+
+        # Create a Canvas widget
+        self.canvas = tk.Canvas(self.master)
+        self.canvas.pack(side='left', fill='both', expand=True)
+
+        # Add a Scrollbar widget
+        self.scrollbar = tk.Scrollbar(self.master, command=self.canvas.yview)
+        self.scrollbar.pack(side='right', fill='y')
+
+        # Configure the Canvas to use the Scrollbar
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+        self.canvas.bind('<Configure>', lambda e: self.canvas.configure(scrollregion=self.canvas.bbox('all')))
+
+        # Create a new Frame inside the Canvas
+        self.canvas_frame = tk.Frame(self.canvas)
+        self.canvas.create_window((0, 0), window=self.canvas_frame, anchor='nw')
 
     def create_widgets(self):
 
@@ -90,7 +106,7 @@ class Application(tk.Frame):
                                                   font=(font_style, font_size, font_weight))
         self.generate_pairings_button.grid(row=3, column=0, padx=0, pady=0)
 
-        # Play game button        
+        # Play game button
         self.play_game_button = tk.Button(self, text="ADD RESULTS", command=self.play_game,
                                           foreground=font_color1,
                                           highlightbackground=background_color,
@@ -128,6 +144,32 @@ class Application(tk.Frame):
                                      relief="flat",
                                      font=(font_style, font_size, font_weight))
         self.quit_button.grid(row=6, column=0, padx=0, pady=0)
+
+        # Clear CSV file button
+        self.clear_csv_button = tk.Button(self, text="Clear CSV File", command=self.clear_csv,
+                                          foreground=font_color2,
+                                          highlightbackground=background_color,
+                                          highlightcolor=background_color,
+                                          highlightthickness=highlight_thickness,
+                                          height=button_height,
+                                          width=button_width,
+                                          borderwidth=0,
+                                          relief="flat",
+                                          font=(font_style, font_size, font_weight))
+        self.clear_csv_button.grid(row=7, column=0, padx=0, pady=0)
+
+        # Clear results.csv button
+        self.clear_results_button = tk.Button(self, text="Clear results.csv", command=self.clear_results_csv,
+                                              foreground=font_color2,
+                                              highlightbackground=background_color,
+                                              highlightcolor=background_color,
+                                              highlightthickness=highlight_thickness,
+                                              height=button_height,
+                                              width=button_width,
+                                              borderwidth=0,
+                                              relief="flat",
+                                              font=(font_style, font_size, font_weight))
+        self.clear_results_button.grid(row=8, column=0, padx=0, pady=0)
 
     def add_player(self):
         # Open a dialog box to get player name
@@ -448,6 +490,23 @@ class Application(tk.Frame):
             checkboxes.append(var)
             tk.Checkbutton(window, text=player, variable=var).grid(row=i+1, column=0, sticky="w")
 
+    def clear_csv(self):
+        try:
+            with open('players.csv', 'w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(['Name', 'Points'])
+            messagebox.showinfo("Success", "CSV file cleared successfully.")
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+
+    def clear_results_csv(self):
+        try:
+            with open('results.csv', 'w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(['index', 'round', 'matched players', 'winner', 'date', 'hour', 'minute'])
+            messagebox.showinfo("Success", "results.csv cleared successfully.")
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
 
 root = tk.Tk()
 app = Application(master=root)
