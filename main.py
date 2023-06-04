@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import *
-from tkinter import ttk
 from PIL import ImageTk, Image
 from random import shuffle, sample
 import tkinter.simpledialog as simpledialog
@@ -76,7 +75,7 @@ class Application(tk.Frame):
         font_style = 'Arial'
         font_size = 18
         font_weight = 'bold'
-        font_color1 = '#484a49'
+        font_color1 = '#244f23'
         font_color2 = '#211a87'
 
         # Add player button
@@ -93,7 +92,7 @@ class Application(tk.Frame):
         self.add_player_button.grid(row=1, column=1, padx=0, pady=0)
 
         # Add from list button
-        self.add_from_list = tk.Button(self.master, text="ADD PLAYER FROM LIST", command=self.add_from_list,
+        self.add_from_list = tk.Button(self.master, text="CHOOSE PLAYERS", command=self.add_from_list,
                                        foreground=font_color2,
                                        highlightbackground=background_color,
                                        highlightcolor=background_color,
@@ -106,7 +105,7 @@ class Application(tk.Frame):
         self.add_from_list.grid(row=2, column=1, padx=0, pady=0)
 
         # Show player list button
-        self.show_players_button = tk.Button(self.master, text="SHOW PLAYERS LIST", command=self.show_player_list,
+        self.show_players_button = tk.Button(self.master, text="SHOW CURRENT PLAYERS", command=self.show_player_list,
                                              foreground=font_color2,
                                              highlightbackground=background_color,
                                              highlightcolor=background_color,
@@ -118,8 +117,7 @@ class Application(tk.Frame):
                                              font=(font_style, font_size, font_weight))
         self.show_players_button.grid(row=3, column=1, padx=0, pady=0)
 
-        # temp button
-        self.temp_button = tk.Button(self.master, text="TEMP", command=self.delete_csv_content,
+        self.delete_csv_file_players_button = tk.Button(self.master, text="DELETE PLAYERS", command=self.delete_csv_file_players,
                                      foreground='red',
                                      highlightbackground=background_color,
                                      highlightcolor=background_color,
@@ -129,7 +127,20 @@ class Application(tk.Frame):
                                      borderwidth=0,
                                      relief="flat",
                                      font=(font_style, font_size, font_weight))
-        self.temp_button.grid(row=4, column=1, padx=0, pady=0)
+        self.delete_csv_file_players_button.grid(row=4, column=1, padx=0, pady=0)
+
+        self.delete_csv_file_results_button = tk.Button(self.master, text="CLEAR GAMES HISTORY", command=self.delete_csv_file_results,
+                                     foreground='red',
+                                     highlightbackground=background_color,
+                                     highlightcolor=background_color,
+                                     highlightthickness=highlight_thickness,
+                                     height=button_height,
+                                     width=button_width,
+                                     borderwidth=0,
+                                     relief="flat",
+                                     font=(font_style, font_size, font_weight))
+        self.delete_csv_file_results_button.grid(row=5, column=1, padx=0, pady=0)
+
 
         # Generate pairings button
         self.generate_pairings_button = tk.Button(self.master, text="GENERATE PAIRINGS", command=self.generate_pairings,
@@ -158,7 +169,7 @@ class Application(tk.Frame):
         self.play_game_button.grid(row=3, column=2, padx=0, pady=0)
 
         # Show player list button with results
-        self.show_players_button_results = tk.Button(self.master, text="SHOW CURRENT RESULTS", command=self.show_player_list,
+        self.show_players_button_results = tk.Button(self.master, text="RANKING", command=self.show_player_list,
                                              foreground=font_color1,
                                              highlightbackground=background_color,
                                              highlightcolor=background_color,
@@ -184,11 +195,11 @@ class Application(tk.Frame):
         self.quit_button.grid(row=5, column=2, padx=0, pady=0)
 
         # Round information label
-        self.round_label = tk.Label(self, text="Current Round: {}".format(self.round),
-                                    foreground=font_color1,
+        self.round_label = tk.Label(self.master, text="ROUND: {}".format(self.round),
+                                    foreground="white",
                                     background=background_color,
                                     font=(font_style, font_size, font_weight))
-        self.round_label.grid(row=7, column=0, padx=0, pady=10)
+        self.round_label.grid(row=1, column=2, padx=0, pady=0)
 
     def add_player(self):
         # Open a dialog box to get player name
@@ -330,6 +341,9 @@ class Application(tk.Frame):
                  enumerate(self.pairings)])
             tk.messagebox.showinfo(f"Round {self.round} Pairings", pairings_list)
             self.generate_pairings_button.config(state='disabled')
+            self.play_game_button.config(state='normal')
+            self.add_player_button.config(state='disabled')
+            self.add_from_list.config(state='disabled')
             root.deiconify()
             # Increment round
 
@@ -379,6 +393,7 @@ class Application(tk.Frame):
         accept_button = tk.Button(right_frame, text="Accept", command=lambda: self.accept_results(winners, game_window))
         accept_button.grid(row=0, column=0)
         self.generate_pairings_button.config(state='normal')
+        self.play_game_button.config(state='disabled')
 
         def check_selected_players():
             for winner in winners:
@@ -394,8 +409,7 @@ class Application(tk.Frame):
         # Initially disable the "Accept" button
         accept_button.config(state='disabled')
 
-        self.add_player_button.config(state='disabled')
-        self.add_from_list.config(state='disabled')
+
 
     def accept_results(self, winners, game_window):
         # Check if all pairs have been played
@@ -415,12 +429,16 @@ class Application(tk.Frame):
         # Clear the pairings for the next round
         self.pairings = []
 
+       #  # Show the round results
+       #  round_results_str = "\n".join(
+       #      [f"{result['pairing'][0]['name']} vs {result['pairing'][1]['name']}: {result['winner']['name']} wins" if
+       #       result['winner'] is not None else f"{result['pairing'][0]['name']}: BYE" for
+       #       result in self.round_results])
+       #  messagebox.showinfo(f"Round {self.round} Results", round_results_str)
+
         # Show the round results
-        round_results_str = "\n".join(
-            [f"{result['pairing'][0]['name']} vs {result['pairing'][1]['name']}: {result['winner']['name']} wins" if
-             result['winner'] is not None else f"{result['pairing'][0]['name']}: BYE" for
-             result in self.round_results])
-        messagebox.showinfo(f"Round {self.round} Results", round_results_str)
+        messagebox.showinfo("  ", "Results saved. Now you can check current ranking.")
+
 
         # Write the round results to the CSV file
         with open('results.csv', mode='a', newline='') as file:
@@ -529,10 +547,10 @@ class Application(tk.Frame):
     def update_round_label(self):
         self.round_label.config(text="Current Round: {}".format(self.round))
 
-    def delete_csv_content(self):
+    def delete_csv_file_players(self):
         try:
             os.remove("players.csv")
-            messagebox.showinfo("Removal done.", "CSV file has been deleted.")
+            messagebox.showinfo("Removal done.", "Players CSV file has been deleted.")
             root.deiconify()
         except FileNotFoundError:
             messagebox.showerror("File not found", "There is no CSV file")
@@ -541,9 +559,17 @@ class Application(tk.Frame):
             messagebox.showerror("Permission denied.")
             root.deiconify()
 
-    # Example usage
-    # delete_csv_content('path/to/your/file.csv')
-
+    def delete_csv_file_results(self):
+        try:
+            os.remove("results.csv")
+            messagebox.showinfo("Removal done.", "Results CSV file has been deleted.")
+            root.deiconify()
+        except FileNotFoundError:
+            messagebox.showerror("File not found", "There is no CSV file")
+            root.deiconify()
+        except PermissionError:
+            messagebox.showerror("Permission denied.")
+            root.deiconify()
 
 root = tk.Tk()
 app = Application(master=root)
