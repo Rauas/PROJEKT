@@ -1,4 +1,5 @@
 .DS_Store
 players.csv
+results.csv
 .idea/
 main_bp.py
