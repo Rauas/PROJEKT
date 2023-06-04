@@ -7,6 +7,7 @@ import tkinter.simpledialog as simpledialog
 import tkinter.messagebox as messagebox
 import csv
 from datetime import datetime
+import os
 
 
 class Application(tk.Frame):
@@ -21,7 +22,7 @@ class Application(tk.Frame):
         self.pack()
         self.create_widgets()
         self.master.title('tournament')
-        self.master.geometry('1366x768')
+        self.master.geometry('1366x1000')
 
         background_color = "black"
         self.master.configure(background=background_color)
@@ -31,7 +32,7 @@ class Application(tk.Frame):
         background_color = "black"
         highlight_thickness = 10
         button_width = 25
-        button_height = 4
+        button_height = 2
         font_style = 'Arial'
         font_size = 18
         font_weight = 'bold'
@@ -129,16 +130,33 @@ class Application(tk.Frame):
                                      font=(font_style, font_size, font_weight))
         self.quit_button.grid(row=6, column=0, padx=0, pady=0)
 
+        # temp button
+        self.temp_button = tk.Button(self, text="TEMP", command=self.delete_csv_content,
+                                     foreground='red',
+                                     highlightbackground=background_color,
+                                     highlightcolor=background_color,
+                                     highlightthickness=highlight_thickness,
+                                     height=button_height,
+                                     width=button_width,
+                                     borderwidth=0,
+                                     relief="flat",
+                                     font=(font_style, font_size, font_weight))
+        self.temp_button.grid(row=7, column=0, padx=0, pady=0)
+
+
+
     def add_player(self):
         # Open a dialog box to get player name
         player_name = simpledialog.askstring("Add Player", "Enter player name:")
         if not player_name:
             messagebox.showerror("Error", "You did not type a name.")
+            root.deiconify()
             return
 
         # Check player name length
         if len(player_name) < 3 or len(player_name) > 10:
             messagebox.showerror("Error", "Invalid name type (3 - 10 characters)")
+            root.deiconify()
             return
 
         # Check if player name is already in CSV file
@@ -155,6 +173,7 @@ class Application(tk.Frame):
 
         if player_name in player_names:
             messagebox.showerror("Error", "Player name already exists")
+            root.deiconify()
             return
 
         # Add player to list and CSV file
@@ -173,6 +192,7 @@ class Application(tk.Frame):
                 player_names = [row[0] for row in reader]
         except FileNotFoundError:
             messagebox.showinfo("Information", "Add first player to create list.")
+            root.deiconify()
             return
 
         with open('players.csv', mode='r') as file:
@@ -214,6 +234,7 @@ class Application(tk.Frame):
     def show_player_list(self):
         if len(self.players) == 0:
             tk.messagebox.showerror("Error", "No players have been added.")
+            root.deiconify()
         else:
             # Sort players based on their points in descending order
             sorted_players = sorted(self.players, key=lambda player: player['points'], reverse=True)
@@ -224,10 +245,12 @@ class Application(tk.Frame):
 
             # Open a dialog box to show player list
             tk.messagebox.showinfo("Player Ranking", player_list)
+            root.deiconify()
 
     def generate_pairings(self):
         if len(self.players) < 3:
             tk.messagebox.showerror("Error", "At least 3 players are required to generate pairings.")
+            root.deiconify()
         else:
             # Shuffle player list
             shuffle(self.players)
@@ -263,12 +286,14 @@ class Application(tk.Frame):
                  enumerate(self.pairings)])
             tk.messagebox.showinfo(f"Round {self.round} Pairings", pairings_list)
             self.generate_pairings_button.config(state='disabled')
+            root.deiconify()
             # Increment round
 
     def play_game(self):
         # Check if there are any pairings to play
         if not self.pairings:
             messagebox.showerror("Error", "No pairings to play")
+            root.deiconify()
             return
 
         # Create a new window for playing the game
@@ -308,7 +333,7 @@ class Application(tk.Frame):
 
         # Create an "Accept" button to save the results and proceed to the next round
         accept_button = tk.Button(right_frame, text="Accept", command=lambda: self.accept_results(winners, game_window))
-        accept_button.pack()
+        accept_button.grid(row=0, column=0)
         self.generate_pairings_button.config(state='normal')
 
         def check_selected_players():
@@ -399,6 +424,7 @@ class Application(tk.Frame):
 
         # Close the game window
         game_window.destroy()
+        root.deiconify()
 
     def export_results_to_csv(self):
         # Write the results to the CSV file
@@ -447,6 +473,21 @@ class Application(tk.Frame):
             var = tk.BooleanVar()
             checkboxes.append(var)
             tk.Checkbutton(window, text=player, variable=var).grid(row=i+1, column=0, sticky="w")
+
+    def delete_csv_content(self):
+        try:
+            os.remove("players.csv")
+            messagebox.showinfo("Removal done.", "CSV file has been deleted.")
+            root.deiconify()
+        except FileNotFoundError:
+            messagebox.showerror("File not found", "There is no CSV file")
+            root.deiconify()
+        except PermissionError:
+            messagebox.showerror("Permission denied.")
+            root.deiconify()
+
+    # Example usage
+    # delete_csv_content('path/to/your/file.csv')
 
 
 root = tk.Tk()
