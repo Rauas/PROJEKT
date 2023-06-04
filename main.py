@@ -27,26 +27,37 @@ class Application(tk.Frame):
         self.master.configure(background=background_color)
 
         # Wczytanie obrazka lewa strona
-        file_path1 = "/Users/katarzynabuszka/Downloads/obrazek.jpg"
+        file_path1 = "./wojownik_1.png"
         image1 = Image.open(file_path1)
-        image1 = image1.resize((300, 300), Image.LANCZOS)  # Dostosowanie rozmiaru obrazka
+        image1 = image1.resize((300, 320), Image.LANCZOS)  # Dostosowanie rozmiaru obrazka
         photo1 = ImageTk.PhotoImage(image1)
 
         # Tworzenie etykiety z obrazkiem i ustawienie pozycji
         self.label = Label(self.master, image=photo1)
         self.label.image = photo1
-        self.label.place(x=100, y=300)
+        self.label.place(x=100, y=230)
 
         # Wczytanie obrazka prawa strona
-        file_path2 = "/Users/katarzynabuszka/Downloads/obrazek.jpg"
+        file_path2 = "./wojownik_2.jpg"
         image2 = Image.open(file_path2)
-        image2 = image2.resize((300, 300), Image.LANCZOS)  # Dostosowanie rozmiaru obrazka
+        image2 = image2.resize((300, 320), Image.LANCZOS)  # Dostosowanie rozmiaru obrazka
         photo2 = ImageTk.PhotoImage(image2)
 
         # Tworzenie etykiety z obrazkiem i ustawienie pozycji
         self.label = Label(self.master, image=photo2)
         self.label.image = photo2
-        self.label.place(x=950, y=300)
+        self.label.place(x=950, y=230)
+
+        # Tworzenie paska przewijania (Scrollbar)
+        scrollbar = Scrollbar(root)
+        scrollbar.pack(side="right", fill="y")  # Ustawienie paska przewijania po prawej stronie
+
+        # Tworzenie obszaru przewijania (Canvas)
+        canvas = Canvas(root, yscrollcommand=scrollbar.set)
+        canvas.pack(side="left", fill="both", expand=True)  # Ustawienie obszaru przewijania na lewo
+
+        # Połączenie paska przewijania z obszarem przewijania
+        scrollbar.config(command=canvas.yview)
 
     def create_widgets(self):
         background_color = 'black'
