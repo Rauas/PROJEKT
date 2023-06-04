@@ -118,6 +118,19 @@ class Application(tk.Frame):
                                              font=(font_style, font_size, font_weight))
         self.show_players_button.grid(row=3, column=1, padx=0, pady=0)
 
+        # temp button
+        self.temp_button = tk.Button(self.master, text="TEMP", command=self.delete_csv_content,
+                                     foreground='red',
+                                     highlightbackground=background_color,
+                                     highlightcolor=background_color,
+                                     highlightthickness=highlight_thickness,
+                                     height=button_height,
+                                     width=button_width,
+                                     borderwidth=0,
+                                     relief="flat",
+                                     font=(font_style, font_size, font_weight))
+        self.temp_button.grid(row=4, column=1, padx=0, pady=0)
+
         # Generate pairings button
         self.generate_pairings_button = tk.Button(self.master, text="GENERATE PAIRINGS", command=self.generate_pairings,
                                                   foreground=font_color1,
@@ -169,21 +182,6 @@ class Application(tk.Frame):
                                      relief="flat",
                                      font=(font_style, font_size, font_weight))
         self.quit_button.grid(row=5, column=2, padx=0, pady=0)
-
-
-        # temp button
-        self.temp_button = tk.Button(self, text="TEMP", command=self.delete_csv_content,
-                                     foreground='red',
-                                     highlightbackground=background_color,
-                                     highlightcolor=background_color,
-                                     highlightthickness=highlight_thickness,
-                                     height=button_height,
-                                     width=button_width,
-                                     borderwidth=0,
-                                     relief="flat",
-                                     font=(font_style, font_size, font_weight))
-        self.temp_button.grid(row=7, column=0, padx=0, pady=0)
-
 
 
     def add_player(self):
