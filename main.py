@@ -1,12 +1,13 @@
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
-
+from PIL import ImageTk, Image
 from random import shuffle, sample
 import tkinter.simpledialog as simpledialog
 import tkinter.messagebox as messagebox
 import csv
 from datetime import datetime
+import os
 
 
 class Application(tk.Frame):
@@ -18,20 +19,60 @@ class Application(tk.Frame):
         self.round = 1
         self.round_results = []
         self.pairing_history = []  # Maintain a history of player pairings for each round
-        self.pack()
         self.create_widgets()
-        self.master.title('tournament')
-        self.master.geometry('1366x768')
+        self.master.title('Tournament')
+        self.master.geometry('1366x568')
 
         background_color = "black"
         self.master.configure(background=background_color)
 
-    def create_widgets(self):
+        self.master.grid_columnconfigure(0, weight=1)
+        self.master.grid_columnconfigure(1, weight=1)
+        self.master.grid_columnconfigure(2, weight=1)
+        self.master.grid_columnconfigure(3, weight=1)
 
-        background_color = "black"
-        highlight_thickness = 10
+        # Dodawanie pustego wiersza na górze i dole okna
+        empty_label1 = tk.Label(root)
+        empty_label1.grid(row=0, column=0)
+        empty_label2 = tk.Label(root)
+        empty_label2.grid(row=5, column=0)
+
+        # Ustawianie wagi dla wierszy
+        root.grid_rowconfigure(0, weight=1)
+        root.grid_rowconfigure(1, weight=2)
+        root.grid_rowconfigure(2, weight=2)
+        root.grid_rowconfigure(3, weight=2)
+        root.grid_rowconfigure(4, weight=2)
+        root.grid_rowconfigure(5, weight=2)
+        root.grid_rowconfigure(6, weight=1)
+
+        # Wczytanie obrazka lewa strona
+        file_path1 = "./wojownik_1.png"
+        image1 = Image.open(file_path1)
+        image1 = image1.resize((300, 320), Image.LANCZOS)  # Dostosowanie rozmiaru obrazka
+        photo1 = ImageTk.PhotoImage(image1)
+
+        # Tworzenie etykiety z obrazkiem i ustawienie pozycji
+        self.label = Label(self.master, image=photo1)
+        self.label.image = photo1
+        self.label.grid(row=1, column=0, rowspan=4, padx=50, pady=20)
+
+        # Wczytanie obrazka prawa strona
+        file_path2 = "./wojownik_2.png"
+        image2 = Image.open(file_path2)
+        image2 = image2.resize((300, 320), Image.LANCZOS)  # Dostosowanie rozmiaru obrazka
+        photo2 = ImageTk.PhotoImage(image2)
+
+        # Tworzenie etykiety z obrazkiem i ustawienie pozycji
+        self.label = Label(self.master, image=photo2)
+        self.label.image = photo2
+        self.label.grid(row=1, column=3, rowspan=4, padx=50, pady=20)
+
+    def create_widgets(self):
+        background_color = 'black'
+        highlight_thickness = 5
         button_width = 25
-        button_height = 1
+        button_height = 3
         font_style = 'Arial'
         font_size = 18
         font_weight = 'bold'
@@ -39,7 +80,7 @@ class Application(tk.Frame):
         font_color2 = '#211a87'
 
         # Add player button
-        self.add_player_button = tk.Button(self,  text="ADD NEW PLAYER", command=self.add_player,
+        self.add_player_button = tk.Button(self.master,  text="ADD NEW PLAYER", command=self.add_player,
                                            foreground=font_color2,
                                            highlightbackground=background_color,
                                            highlightcolor=background_color,
@@ -49,10 +90,10 @@ class Application(tk.Frame):
                                            borderwidth=0,
                                            relief="flat",
                                            font=(font_style, font_size, font_weight))
-        self.add_player_button.grid(row=0, column=0, padx=0, pady=0)
+        self.add_player_button.grid(row=1, column=1, padx=0, pady=0)
 
         # Add from list button
-        self.add_from_list = tk.Button(self, text="ADD PLAYER FROM LIST", command=self.add_from_list,
+        self.add_from_list = tk.Button(self.master, text="ADD PLAYER FROM LIST", command=self.add_from_list,
                                        foreground=font_color2,
                                        highlightbackground=background_color,
                                        highlightcolor=background_color,
@@ -62,10 +103,10 @@ class Application(tk.Frame):
                                        borderwidth=0,
                                        relief="flat",
                                        font=(font_style, font_size, font_weight))
-        self.add_from_list.grid(row=1, column=0, padx=0, pady=0)
+        self.add_from_list.grid(row=2, column=1, padx=0, pady=0)
 
         # Show player list button
-        self.show_players_button = tk.Button(self, text="SHOW PLAYERS LIST", command=self.show_player_list,
+        self.show_players_button = tk.Button(self.master, text="SHOW PLAYERS LIST", command=self.show_player_list,
                                              foreground=font_color2,
                                              highlightbackground=background_color,
                                              highlightcolor=background_color,
@@ -75,10 +116,10 @@ class Application(tk.Frame):
                                              borderwidth=0,
                                              relief="flat",
                                              font=(font_style, font_size, font_weight))
-        self.show_players_button.grid(row=2, column=0, padx=0, pady=0)
+        self.show_players_button.grid(row=3, column=1, padx=0, pady=0)
 
         # Generate pairings button
-        self.generate_pairings_button = tk.Button(self, text="GENERATE PAIRINGS", command=self.generate_pairings,
+        self.generate_pairings_button = tk.Button(self.master, text="GENERATE PAIRINGS", command=self.generate_pairings,
                                                   foreground=font_color1,
                                                   highlightbackground=background_color,
                                                   highlightcolor=background_color,
@@ -88,10 +129,10 @@ class Application(tk.Frame):
                                                   borderwidth=0,
                                                   relief="flat",
                                                   font=(font_style, font_size, font_weight))
-        self.generate_pairings_button.grid(row=3, column=0, padx=0, pady=0)
+        self.generate_pairings_button.grid(row=2, column=2, padx=0, pady=0)
 
         # Play game button        
-        self.play_game_button = tk.Button(self, text="ADD RESULTS", command=self.play_game,
+        self.play_game_button = tk.Button(self.master, text="ADD RESULTS", command=self.play_game,
                                           foreground=font_color1,
                                           highlightbackground=background_color,
                                           highlightcolor=background_color,
@@ -101,10 +142,10 @@ class Application(tk.Frame):
                                           borderwidth=0,
                                           relief="flat",
                                           font=(font_style, font_size, font_weight))
-        self.play_game_button.grid(row=4, column=0, padx=0, pady=0)
+        self.play_game_button.grid(row=3, column=2, padx=0, pady=0)
 
         # Show player list button with results
-        self.show_players_button_results = tk.Button(self, text="SHOW CURRENT RESULTS", command=self.show_player_list,
+        self.show_players_button_results = tk.Button(self.master, text="SHOW CURRENT RESULTS", command=self.show_player_list,
                                              foreground=font_color1,
                                              highlightbackground=background_color,
                                              highlightcolor=background_color,
@@ -114,10 +155,10 @@ class Application(tk.Frame):
                                              borderwidth=0,
                                              relief="flat",
                                              font=(font_style, font_size, font_weight))
-        self.show_players_button_results.grid(row=5, column=0, padx=0, pady=0)
+        self.show_players_button_results.grid(row=4, column=2, padx=0, pady=0)
 
         # Quit button
-        self.quit_button = tk.Button(self, text="QUIT", command=self.master.destroy,
+        self.quit_button = tk.Button(self.master, text="QUIT", command=self.master.destroy,
                                      foreground='red',
                                      highlightbackground=background_color,
                                      highlightcolor=background_color,
@@ -127,7 +168,23 @@ class Application(tk.Frame):
                                      borderwidth=0,
                                      relief="flat",
                                      font=(font_style, font_size, font_weight))
-        self.quit_button.grid(row=6, column=0, padx=0, pady=0)
+        self.quit_button.grid(row=5, column=2, padx=0, pady=0)
+
+
+        # temp button
+        self.temp_button = tk.Button(self, text="TEMP", command=self.delete_csv_content,
+                                     foreground='red',
+                                     highlightbackground=background_color,
+                                     highlightcolor=background_color,
+                                     highlightthickness=highlight_thickness,
+                                     height=button_height,
+                                     width=button_width,
+                                     borderwidth=0,
+                                     relief="flat",
+                                     font=(font_style, font_size, font_weight))
+        self.temp_button.grid(row=7, column=0, padx=0, pady=0)
+
+
 
         # Round information label
         self.round_label = tk.Label(self, text="Current Round: {}".format(self.round),
@@ -141,11 +198,13 @@ class Application(tk.Frame):
         player_name = simpledialog.askstring("Add Player", "Enter player name:")
         if not player_name:
             messagebox.showerror("Error", "You did not type a name.")
+            root.deiconify()
             return
 
         # Check player name length
         if len(player_name) < 3 or len(player_name) > 10:
             messagebox.showerror("Error", "Invalid name type (3 - 10 characters)")
+            root.deiconify()
             return
 
         # Check if player name is already in CSV file
@@ -162,6 +221,7 @@ class Application(tk.Frame):
 
         if player_name in player_names:
             messagebox.showerror("Error", "Player name already exists")
+            root.deiconify()
             return
 
         # Add player to list and CSV file
@@ -180,6 +240,7 @@ class Application(tk.Frame):
                 player_names = [row[0] for row in reader]
         except FileNotFoundError:
             messagebox.showinfo("Information", "Add first player to create list.")
+            root.deiconify()
             return
 
         with open('players.csv', mode='r') as file:
@@ -221,6 +282,7 @@ class Application(tk.Frame):
     def show_player_list(self):
         if len(self.players) == 0:
             tk.messagebox.showerror("Error", "No players have been added.")
+            root.deiconify()
         else:
             # Sort players based on their points in descending order
             sorted_players = sorted(self.players, key=lambda player: player['points'], reverse=True)
@@ -231,10 +293,12 @@ class Application(tk.Frame):
 
             # Open a dialog box to show player list
             tk.messagebox.showinfo("Player Ranking", player_list)
+            root.deiconify()
 
     def generate_pairings(self):
         if len(self.players) < 3:
             tk.messagebox.showerror("Error", "At least 3 players are required to generate pairings.")
+            root.deiconify()
         else:
             # Shuffle player list
             shuffle(self.players)
@@ -270,12 +334,14 @@ class Application(tk.Frame):
                  enumerate(self.pairings)])
             tk.messagebox.showinfo(f"Round {self.round} Pairings", pairings_list)
             self.generate_pairings_button.config(state='disabled')
+            root.deiconify()
             # Increment round
 
     def play_game(self):
         # Check if there are any pairings to play
         if not self.pairings:
             messagebox.showerror("Error", "No pairings to play")
+            root.deiconify()
             return
 
         # Create a new window for playing the game
@@ -315,7 +381,7 @@ class Application(tk.Frame):
 
         # Create an "Accept" button to save the results and proceed to the next round
         accept_button = tk.Button(right_frame, text="Accept", command=lambda: self.accept_results(winners, game_window))
-        accept_button.pack()
+        accept_button.grid(row=0, column=0)
         self.generate_pairings_button.config(state='normal')
 
         def check_selected_players():
@@ -405,6 +471,7 @@ class Application(tk.Frame):
         self.round_label.config(text="Current Round: {}".format(self.round))
         # Close the game window
         game_window.destroy()
+        root.deiconify()
 
     def export_results_to_csv(self):
         # Write the results to the CSV file
@@ -454,6 +521,7 @@ class Application(tk.Frame):
             checkboxes.append(var)
             tk.Checkbutton(window, text=player, variable=var).grid(row=i+1, column=0, sticky="w")
 
+
     def next_round(self):
         if self.round < self.total_rounds:
             self.round += 1
@@ -464,6 +532,22 @@ class Application(tk.Frame):
 
     def update_round_label(self):
         self.round_label.config(text="Current Round: {}".format(self.round))
+
+    def delete_csv_content(self):
+        try:
+            os.remove("players.csv")
+            messagebox.showinfo("Removal done.", "CSV file has been deleted.")
+            root.deiconify()
+        except FileNotFoundError:
+            messagebox.showerror("File not found", "There is no CSV file")
+            root.deiconify()
+        except PermissionError:
+            messagebox.showerror("Permission denied.")
+            root.deiconify()
+
+    # Example usage
+    # delete_csv_content('path/to/your/file.csv')
+
 
 root = tk.Tk()
 app = Application(master=root)
