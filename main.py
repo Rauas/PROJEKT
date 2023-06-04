@@ -31,7 +31,7 @@ class Application(tk.Frame):
         background_color = "black"
         highlight_thickness = 10
         button_width = 25
-        button_height = 4
+        button_height = 1
         font_style = 'Arial'
         font_size = 18
         font_weight = 'bold'
@@ -128,6 +128,13 @@ class Application(tk.Frame):
                                      relief="flat",
                                      font=(font_style, font_size, font_weight))
         self.quit_button.grid(row=6, column=0, padx=0, pady=0)
+
+        # Round information label
+        self.round_label = tk.Label(self, text="Current Round: {}".format(self.round),
+                                    foreground=font_color1,
+                                    background=background_color,
+                                    font=(font_style, font_size, font_weight))
+        self.round_label.grid(row=7, column=0, padx=0, pady=10)
 
     def add_player(self):
         # Open a dialog box to get player name
@@ -395,8 +402,7 @@ class Application(tk.Frame):
 
         # Increment the round number and reset the round results
         self.round += 1
-        self.round_results = []
-
+        self.round_label.config(text="Current Round: {}".format(self.round))
         # Close the game window
         game_window.destroy()
 
@@ -448,6 +454,16 @@ class Application(tk.Frame):
             checkboxes.append(var)
             tk.Checkbutton(window, text=player, variable=var).grid(row=i+1, column=0, sticky="w")
 
+    def next_round(self):
+        if self.round < self.total_rounds:
+            self.round += 1
+            self.update_round_label()  # Add this line to update the round label
+            self.update_question()
+        else:
+            messagebox.showinfo("Game Over", "No more rounds!")
+
+    def update_round_label(self):
+        self.round_label.config(text="Current Round: {}".format(self.round))
 
 root = tk.Tk()
 app = Application(master=root)
