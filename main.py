@@ -47,7 +47,7 @@ class Application(tk.Frame):
         background_color = "black"
         highlight_thickness = 10
         button_width = 25
-        button_height = 4
+        button_height = 1
         font_style = 'Arial'
         font_size = 18
         font_weight = 'bold'
