@@ -521,7 +521,6 @@ class Application(tk.Frame):
             checkboxes.append(var)
             tk.Checkbutton(window, text=player, variable=var).grid(row=i+1, column=0, sticky="w")
 
-
     def next_round(self):
         if self.round < self.total_rounds:
             self.round += 1
