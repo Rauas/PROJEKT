@@ -18,13 +18,32 @@ class Application(tk.Frame):
         self.round = 1
         self.round_results = []
         self.pairing_history = []  # Maintain a history of player pairings for each round
-        self.pack()
         self.create_widgets()
         self.master.title('tournament')
-        self.master.geometry('1366x768')
+        self.master.geometry('1366x720')
 
         background_color = "black"
         self.master.configure(background=background_color)
+
+        self.master.grid_columnconfigure(0, weight=1)
+        self.master.grid_columnconfigure(1, weight=1)
+        self.master.grid_columnconfigure(2, weight=1)
+        self.master.grid_columnconfigure(3, weight=1)
+
+        # Dodawanie pustego wiersza na górze i dole okna
+        empty_label1 = tk.Label(root)
+        empty_label1.grid(row=0, column=0)
+        empty_label2 = tk.Label(root)
+        empty_label2.grid(row=5, column=0)
+
+        # Ustawianie wagi dla wierszy
+        root.grid_rowconfigure(0, weight=1)
+        root.grid_rowconfigure(1, weight=2)
+        root.grid_rowconfigure(2, weight=2)
+        root.grid_rowconfigure(3, weight=2)
+        root.grid_rowconfigure(4, weight=2)
+        root.grid_rowconfigure(5, weight=2)
+        root.grid_rowconfigure(6, weight=1)
 
         # Wczytanie obrazka lewa strona
         file_path1 = "./wojownik_1.png"
@@ -35,7 +54,7 @@ class Application(tk.Frame):
         # Tworzenie etykiety z obrazkiem i ustawienie pozycji
         self.label = Label(self.master, image=photo1)
         self.label.image = photo1
-        self.label.place(x=100, y=230)
+        self.label.grid(row=1, column=0, rowspan=4, padx=50, pady=20)
 
         # Wczytanie obrazka prawa strona
         file_path2 = "./wojownik_2.png"
@@ -46,24 +65,13 @@ class Application(tk.Frame):
         # Tworzenie etykiety z obrazkiem i ustawienie pozycji
         self.label = Label(self.master, image=photo2)
         self.label.image = photo2
-        self.label.place(x=950, y=230)
-
-        # Tworzenie paska przewijania (Scrollbar)
-        scrollbar = Scrollbar(root)
-        scrollbar.pack(side="right", fill="y")  # Ustawienie paska przewijania po prawej stronie
-
-        # Tworzenie obszaru przewijania (Canvas)
-        canvas = Canvas(root, yscrollcommand=scrollbar.set)
-        canvas.pack(side="left", fill="both", expand=True)  # Ustawienie obszaru przewijania na lewo
-
-        # Połączenie paska przewijania z obszarem przewijania
-        scrollbar.config(command=canvas.yview)
+        self.label.grid(row=1, column=3, rowspan=4, padx=50, pady=20)
 
     def create_widgets(self):
         background_color = 'black'
-        highlight_thickness = 10
+        highlight_thickness = 5
         button_width = 25
-        button_height = 4
+        button_height = 3
         font_style = 'Arial'
         font_size = 18
         font_weight = 'bold'
@@ -71,7 +79,7 @@ class Application(tk.Frame):
         font_color2 = '#211a87'
 
         # Add player button
-        self.add_player_button = tk.Button(self,  text="ADD NEW PLAYER", command=self.add_player,
+        self.add_player_button = tk.Button(self.master,  text="ADD NEW PLAYER", command=self.add_player,
                                            foreground=font_color2,
                                            highlightbackground=background_color,
                                            highlightcolor=background_color,
@@ -81,10 +89,10 @@ class Application(tk.Frame):
                                            borderwidth=0,
                                            relief="flat",
                                            font=(font_style, font_size, font_weight))
-        self.add_player_button.grid(row=0, column=0, padx=0, pady=0)
+        self.add_player_button.grid(row=1, column=1, padx=0, pady=0)
 
         # Add from list button
-        self.add_from_list = tk.Button(self, text="ADD PLAYER FROM LIST", command=self.add_from_list,
+        self.add_from_list = tk.Button(self.master, text="ADD PLAYER FROM LIST", command=self.add_from_list,
                                        foreground=font_color2,
                                        highlightbackground=background_color,
                                        highlightcolor=background_color,
@@ -94,10 +102,10 @@ class Application(tk.Frame):
                                        borderwidth=0,
                                        relief="flat",
                                        font=(font_style, font_size, font_weight))
-        self.add_from_list.grid(row=1, column=0, padx=0, pady=0)
+        self.add_from_list.grid(row=2, column=1, padx=0, pady=0)
 
         # Show player list button
-        self.show_players_button = tk.Button(self, text="SHOW PLAYERS LIST", command=self.show_player_list,
+        self.show_players_button = tk.Button(self.master, text="SHOW PLAYERS LIST", command=self.show_player_list,
                                              foreground=font_color2,
                                              highlightbackground=background_color,
                                              highlightcolor=background_color,
@@ -107,10 +115,10 @@ class Application(tk.Frame):
                                              borderwidth=0,
                                              relief="flat",
                                              font=(font_style, font_size, font_weight))
-        self.show_players_button.grid(row=2, column=0, padx=0, pady=0)
+        self.show_players_button.grid(row=3, column=1, padx=0, pady=0)
 
         # Generate pairings button
-        self.generate_pairings_button = tk.Button(self, text="GENERATE PAIRINGS", command=self.generate_pairings,
+        self.generate_pairings_button = tk.Button(self.master, text="GENERATE PAIRINGS", command=self.generate_pairings,
                                                   foreground=font_color1,
                                                   highlightbackground=background_color,
                                                   highlightcolor=background_color,
@@ -120,10 +128,10 @@ class Application(tk.Frame):
                                                   borderwidth=0,
                                                   relief="flat",
                                                   font=(font_style, font_size, font_weight))
-        self.generate_pairings_button.grid(row=3, column=0, padx=0, pady=0)
+        self.generate_pairings_button.grid(row=2, column=2, padx=0, pady=0)
 
         # Play game button        
-        self.play_game_button = tk.Button(self, text="ADD RESULTS", command=self.play_game,
+        self.play_game_button = tk.Button(self.master, text="ADD RESULTS", command=self.play_game,
                                           foreground=font_color1,
                                           highlightbackground=background_color,
                                           highlightcolor=background_color,
@@ -133,10 +141,10 @@ class Application(tk.Frame):
                                           borderwidth=0,
                                           relief="flat",
                                           font=(font_style, font_size, font_weight))
-        self.play_game_button.grid(row=4, column=0, padx=0, pady=0)
+        self.play_game_button.grid(row=3, column=2, padx=0, pady=0)
 
         # Show player list button with results
-        self.show_players_button_results = tk.Button(self, text="SHOW CURRENT RESULTS", command=self.show_player_list,
+        self.show_players_button_results = tk.Button(self.master, text="SHOW CURRENT RESULTS", command=self.show_player_list,
                                              foreground=font_color1,
                                              highlightbackground=background_color,
                                              highlightcolor=background_color,
@@ -146,10 +154,10 @@ class Application(tk.Frame):
                                              borderwidth=0,
                                              relief="flat",
                                              font=(font_style, font_size, font_weight))
-        self.show_players_button_results.grid(row=5, column=0, padx=0, pady=0)
+        self.show_players_button_results.grid(row=4, column=2, padx=0, pady=0)
 
         # Quit button
-        self.quit_button = tk.Button(self, text="QUIT", command=self.master.destroy,
+        self.quit_button = tk.Button(self.master, text="QUIT", command=self.master.destroy,
                                      foreground='red',
                                      highlightbackground=background_color,
                                      highlightcolor=background_color,
@@ -159,7 +167,7 @@ class Application(tk.Frame):
                                      borderwidth=0,
                                      relief="flat",
                                      font=(font_style, font_size, font_weight))
-        self.quit_button.grid(row=6, column=0, padx=0, pady=0)
+        self.quit_button.grid(row=5, column=2, padx=0, pady=0)
 
 
     def add_player(self):
