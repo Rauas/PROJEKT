@@ -38,7 +38,7 @@ class Application(tk.Frame):
         self.label.place(x=100, y=230)
 
         # Wczytanie obrazka prawa strona
-        file_path2 = "./wojownik_2.jpg"
+        file_path2 = "./wojownik_2.png"
         image2 = Image.open(file_path2)
         image2 = image2.resize((300, 320), Image.LANCZOS)  # Dostosowanie rozmiaru obrazka
         photo2 = ImageTk.PhotoImage(image2)
